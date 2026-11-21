@@ -4,7 +4,7 @@
 city, the cleanest hours of the day, and a personalised low-emission routine with indoor air hacks,
 written live by Google Gemini for your household.**
 
-Live app: **LIVE_URL**
+Live app: **https://saans-23907312550.asia-south1.run.app**
 
 > General guidance, not medical advice. If anyone has trouble breathing or chest pain, seek
 > medical care.
