@@ -33,8 +33,8 @@
       {#each day.best as window (window.start)}
         <li>
           <strong>{formatHour(window.start)} to {formatHour(window.end)}</strong>:
-          {BAND_LABEL[window.band]}, AQI {window.meanAqi}{#if window.leastBad}
-            (the least bad hour, still above your limit){/if}
+          {BAND_LABEL[window.band]}, AQI {window.meanAqi}
+          {#if window.leastBad}(the least bad hour, still above your limit){/if}
         </li>
       {/each}
     </ul>

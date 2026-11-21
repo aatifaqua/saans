@@ -1,0 +1,14 @@
+**/node_modules
+**/dist
+**/coverage
+**/.env
+**/.env.*
+!.env.example
+.git
+.github
+docs
+*.log
+# Tests and their fixtures never run in the image.
+**/*.test.ts
+**/test-fixtures.ts
+server/src/testing.ts
