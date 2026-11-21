@@ -1,0 +1,106 @@
+import {
+  HarmBlockThreshold,
+  HarmCategory,
+  ThinkingLevel,
+  type GenerateContentConfig,
+  type GenerateContentParameters,
+} from '@google/genai';
+
+/** The one SDK call the app makes (`ai.models.generateContent`), injected so tests can fake it. */
+export type GenerateFn = (
+  params: GenerateContentParameters,
+) => Promise<{ readonly text?: string | undefined }>;
+
+export interface GenerateRequest {
+  readonly system: string;
+  readonly prompt: string;
+  readonly temperature: number;
+  readonly maxOutputTokens: number;
+  /** JSON Schema for structured output; omitted for plain text answers. */
+  readonly json?: object;
+}
+
+export interface GeminiOptions {
+  readonly models: readonly string[];
+  readonly callTimeoutMs: number;
+  readonly deadlineMs: number;
+}
+
+/** Every model in the chain failed, or the deadline passed. The route answers 503. */
+export class GeminiUnavailableError extends Error {
+  override readonly name = 'GeminiUnavailableError';
+}
+
+// Stated explicitly so the policy does not depend on the API's defaults.
+const SAFETY_SETTINGS = [
+  HarmCategory.HARM_CATEGORY_HARASSMENT,
+  HarmCategory.HARM_CATEGORY_HATE_SPEECH,
+  HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT,
+  HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT,
+].map((category) => ({ category, threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE }));
+
+/** Busy (429), server errors (5xx) and our own timeouts are worth another model; a 400 is not. */
+function worthRetrying(error: unknown): boolean {
+  if (error instanceof GeminiUnavailableError) return true;
+  const status =
+    typeof error === 'object' && error !== null && 'status' in error ? error.status : 0;
+  return status === 429 || (typeof status === 'number' && status >= 500);
+}
+
+/** Rejects when `signal` aborts, so a call that ignores its signal still cannot hang the chain. */
+function untilAborted<T>(promise: Promise<T>, signal: AbortSignal): Promise<T> {
+  return new Promise<T>((resolve, reject) => {
+    const abort = (): void => {
+      reject(new GeminiUnavailableError('timed out'));
+    };
+    signal.addEventListener('abort', abort, { once: true });
+    promise.then(resolve, reject).finally(() => {
+      signal.removeEventListener('abort', abort);
+    });
+  });
+}
+
+function configFor(request: GenerateRequest, signal: AbortSignal): GenerateContentConfig {
+  return {
+    systemInstruction: request.system,
+    temperature: request.temperature,
+    maxOutputTokens: request.maxOutputTokens,
+    safetySettings: SAFETY_SETTINGS,
+    // The forecast maths already did the reasoning; low thinking keeps answers fast.
+    thinkingConfig: { thinkingLevel: ThinkingLevel.LOW },
+    abortSignal: signal,
+    ...(request.json === undefined
+      ? {}
+      : { responseMimeType: 'application/json', responseJsonSchema: request.json }),
+  };
+}
+
+/**
+ * Runs a request down the model chain. `accept` validates each answer and returns null to reject
+ * it, so a malformed answer is treated like a failed call and never reaches the user.
+ */
+export function createGemini(generate: GenerateFn, options: GeminiOptions) {
+  return {
+    async run<T>(
+      request: GenerateRequest,
+      accept: (text: string) => T | null,
+    ): Promise<{ value: T; model: string }> {
+      const deadline = AbortSignal.timeout(options.deadlineMs);
+      for (const model of options.models) {
+        if (deadline.aborted) break;
+        const signal = AbortSignal.any([deadline, AbortSignal.timeout(options.callTimeoutMs)]);
+        try {
+          const params = { model, contents: request.prompt, config: configFor(request, signal) };
+          const response = await untilAborted(generate(params), signal);
+          const value = accept(response.text ?? '');
+          if (value !== null) return { value, model };
+        } catch (error) {
+          if (!worthRetrying(error)) break;
+        }
+      }
+      throw new GeminiUnavailableError('no model produced a usable answer');
+    },
+  };
+}
+
+export type Gemini = ReturnType<typeof createGemini>;

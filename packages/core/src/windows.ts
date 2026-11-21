@@ -18,6 +18,11 @@ function addHours(time: string, hours: number): string {
   return new Date(Date.parse(`${time}:00Z`) + hours * HOUR_MS).toISOString().slice(0, 16);
 }
 
+/** The current hour at a place, as the local "YYYY-MM-DDTHH:00" time its forecast is keyed by. */
+export function localHour(epochMs: number, utcOffsetSeconds: number): string {
+  return `${new Date(epochMs + utcOffsetSeconds * 1000).toISOString().slice(0, 13)}:00`;
+}
+
 const isWaking = (hour: HourAqi): boolean => {
   const local = Number(hour.time.slice(11, 13));
   return local >= WAKING_START && local < WAKING_END;

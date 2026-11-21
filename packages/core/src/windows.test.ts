@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { ADULT, FAMILY, PM25, series } from './test-fixtures.ts';
-import { outlook } from './windows.ts';
+import { localHour, outlook } from './windows.ts';
 
 const { good, satisfactory, moderate, poor, veryPoor, severe } = PM25;
 const MORNING = '2026-11-22T06:00';
@@ -86,5 +86,12 @@ describe('outlook', () => {
       worst: null,
       episode: false,
     });
+  });
+});
+
+describe('localHour', () => {
+  it('floors to the hour in the offset of the place', () => {
+    // 2026-11-21T19:47Z is 01:17 on the 22nd in India (UTC+5:30).
+    expect(localHour(Date.parse('2026-11-21T19:47:00Z'), 19_800)).toBe('2026-11-22T01:00');
   });
 });
