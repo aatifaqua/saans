@@ -49,9 +49,8 @@ describe('createCache', () => {
     advance(150);
     await cache.get('a', () => Promise.resolve('2'));
     await cache.get('b', () => Promise.resolve('3'));
-    expect(cache.size).toBe(2);
     await cache.get('c', () => Promise.resolve('4'));
-    expect(cache.size).toBe(2);
+    expect(await cache.get('c', () => Promise.resolve('kept'))).toBe('4');
     expect(await cache.get('a', () => Promise.resolve('reloaded'))).toBe('reloaded');
   });
 });

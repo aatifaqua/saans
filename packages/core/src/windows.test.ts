@@ -22,6 +22,13 @@ describe('outlook', () => {
     expect(result.hours.map((hour) => hour.time)).toEqual(['2026-11-22T07:00', '2026-11-22T09:00']);
     expect(result.best.every((window) => Number.isFinite(window.meanAqi))).toBe(true);
     expect(result.best[0]?.end).toBe('2026-11-22T08:00');
+    expect(result.now).toBeNull();
+  });
+
+  it('reports the dirtiest single hour of the next 24 as the peak', () => {
+    const result = outlook(series(MORNING, [good, good, poor]), ADULT, MORNING);
+    expect(result.peak).toMatchObject({ time: '2026-11-22T08:00', band: 'poor' });
+    expect(outlook([], ADULT, MORNING).peak).toBeNull();
   });
 
   it('finds the cleanest waking windows within the threshold, best first', () => {

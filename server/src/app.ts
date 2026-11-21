@@ -1,3 +1,4 @@
+import { DISCLAIMER } from '@saans/core';
 import { Hono, type Context } from 'hono';
 import { bodyLimit } from 'hono/body-limit';
 import { compress } from 'hono/compress';
@@ -44,7 +45,7 @@ export function createApp(deps: AppDeps): Hono {
     '/api/*',
     bodyLimit({
       maxSize: MAX_BODY_BYTES,
-      onError: (c) => c.json({ error: 'The request is too large.' }, 413),
+      onError: (c) => c.json({ error: 'The request is too large.', disclaimer: DISCLAIMER }, 413),
     }),
   );
 
@@ -55,7 +56,7 @@ export function createApp(deps: AppDeps): Hono {
   app.route('/api', aiRoutes({ air, gemini, now }));
 
   if (config.staticDir !== undefined) mountStatic(app, config.staticDir);
-  app.notFound((c) => c.json({ error: 'Not found.' }, 404));
+  app.notFound((c) => c.json({ error: 'Not found.', disclaimer: DISCLAIMER }, 404));
   app.onError(onError);
   return app;
 }

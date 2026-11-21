@@ -24,7 +24,7 @@ export interface Saved {
   readonly place: Place | null;
 }
 
-const isRecord = (value: unknown): value is Record<string, unknown> =>
+export const isRecord = (value: unknown): value is Record<string, unknown> =>
   typeof value === 'object' && value !== null;
 const isCount = (value: unknown): value is number =>
   typeof value === 'number' && Number.isInteger(value) && value >= 0 && value <= 12;
@@ -37,6 +37,7 @@ function isHousehold(value: unknown): value is Household {
   const { members } = value;
   return (
     MEMBERS.every((member) => isCount(members[member])) &&
+    MEMBERS.some((member) => members[member] !== 0) &&
     Array.isArray(value.sensitivities) &&
     value.sensitivities.every(isSensitivity) &&
     isCommute(value.commute) &&

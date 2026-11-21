@@ -27,7 +27,7 @@
   {/if}
   <p>Your household's outdoor limit: <strong>{BAND_LABEL[day.threshold]}</strong></p>
 
-  <h3>Cleanest hours today</h3>
+  <h3>Cleanest hours in the next 24</h3>
   {#if day.best.length > 0}
     <ul class="windows">
       {#each day.best as window (window.start)}

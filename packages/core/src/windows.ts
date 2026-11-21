@@ -111,8 +111,14 @@ export function outlook(
   const dayHours = day.filter((hour) => hour !== null);
   const mean = dayHours.reduce((sum, hour) => sum + hour.aqi, 0) / Math.max(1, dayHours.length);
   const threshold = householdThreshold(household);
+  const peak = dayHours.reduce<HourAqi | null>(
+    (top, hour) => (top === null || hour.aqi > top.aqi ? hour : top),
+    null,
+  );
   return {
-    now: dayHours[0] ?? null,
+    // The current hour only: a gap stays a gap rather than borrowing a later reading.
+    now: day[0] ?? null,
+    peak,
     hours: slots.filter((hour) => hour !== null),
     best: bestWindows(day, threshold),
     worst: worstWindow(day),

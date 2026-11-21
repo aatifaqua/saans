@@ -52,6 +52,19 @@ describe('storage', () => {
     });
   });
 
+  it('ignores a saved household with nobody in it', () => {
+    const empty = {
+      ...DEFAULT_HOUSEHOLD,
+      members: { child: 0, adult: 0, olderAdult: 0, pregnant: 0 },
+    };
+    expect(loadSaved(memory({ saans: JSON.stringify({ household: empty, place: null }) }))).toEqual(
+      {
+        household: DEFAULT_HOUSEHOLD,
+        place: null,
+      },
+    );
+  });
+
   it('works when storage is unavailable', () => {
     expect(loadSaved(null)).toEqual({ household: DEFAULT_HOUSEHOLD, place: null });
     expect(() => {

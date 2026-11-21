@@ -1,3 +1,4 @@
+import { DISCLAIMER } from '@saans/core';
 import type { Context, MiddlewareHandler } from 'hono';
 import { secureHeaders } from 'hono/secure-headers';
 
@@ -64,7 +65,10 @@ export function rateLimit(options: {
     counters.set(key, current);
     if (current.count > options.perMinute) {
       c.header('Retry-After', String(Math.ceil((current.resetAt - time) / 1000)));
-      return c.json({ error: 'Too many requests. Please wait a minute.' }, 429);
+      return c.json(
+        { error: 'Too many requests. Please wait a minute.', disclaimer: DISCLAIMER },
+        429,
+      );
     }
     return next();
   };

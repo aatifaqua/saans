@@ -98,7 +98,7 @@ browser (Svelte)                          Cloud Run (Hono, stateless)           
 
 - TypeScript strict (`noUncheckedIndexedAccess`, `exactOptionalPropertyTypes`), ESLint
   `strictTypeChecked` with complexity budgets and zero warnings, Prettier.
-- 120 tests (Vitest) with coverage thresholds: the domain core at 100 %, the server at 95 %, and
+- 128 tests (Vitest) with coverage thresholds: the domain core at 100 %, the server at 95 %, and
   every component audited with axe.
 - Accessibility: skip link, landmarks, labelled controls, bands named in words (never colour
   alone), a table alternative to the chart, live regions for AI results, visible focus, reduced

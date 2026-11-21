@@ -71,6 +71,8 @@ export interface DayOutlook {
   readonly hours: readonly HourAqi[];
   readonly best: readonly AirWindow[];
   readonly worst: AirWindow | null;
+  /** The dirtiest single hour of the next 24. */
+  readonly peak: HourAqi | null;
   /** The next 24 hours average Very Poor or worse. */
   readonly episode: boolean;
   /** The worst band at which this household should still go outdoors. */

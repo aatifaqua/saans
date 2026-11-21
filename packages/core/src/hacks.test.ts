@@ -36,6 +36,13 @@ describe('candidateHacks', () => {
     );
   });
 
+  it('offers masks and sealing when one hour is Poor even if the three-hour mean is not', () => {
+    const spike = outlook(series(MORNING, [PM25.good, PM25.good, PM25.poor]), ADULT, MORNING);
+    expect(candidateHacks(spike, ADULT)).toEqual(
+      expect.arrayContaining(['wellFittedMask', 'sealGaps']),
+    );
+  });
+
   it('leaves out sealing and masks on a clean day', () => {
     expect(candidateHacks(clean, ADULT)).not.toContain('sealGaps');
     expect(candidateHacks(clean, ADULT)).not.toContain('wellFittedMask');

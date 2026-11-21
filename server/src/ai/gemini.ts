@@ -7,9 +7,10 @@ import {
 } from '@google/genai';
 
 /** The one SDK call the app makes (`ai.models.generateContent`), injected so tests can fake it. */
-export type GenerateFn = (
-  params: GenerateContentParameters,
-) => Promise<{ readonly text?: string | undefined }>;
+export type GenerateFn = (params: GenerateContentParameters) => Promise<{
+  readonly text?: string | undefined;
+  readonly candidates?: readonly { readonly finishReason?: string | undefined }[] | undefined;
+}>;
 
 export interface GenerateRequest {
   readonly system: string;
@@ -92,7 +93,9 @@ export function createGemini(generate: GenerateFn, options: GeminiOptions) {
         try {
           const params = { model, contents: request.prompt, config: configFor(request, signal) };
           const response = await untilAborted(generate(params), signal);
-          const value = accept(response.text ?? '');
+          // An answer cut off by the token limit may still parse; it is not shown.
+          const truncated = response.candidates?.[0]?.finishReason === 'MAX_TOKENS';
+          const value = truncated ? null : accept(response.text ?? '');
           if (value !== null) return { value, model };
         } catch (error) {
           if (!worthRetrying(error)) break;

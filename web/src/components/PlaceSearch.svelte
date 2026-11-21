@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { Place } from '@saans/core';
+  import { round2, type Place } from '@saans/core';
   import { ApiError, searchPlaces, type ListedPlace } from '../lib/api.ts';
 
   interface Props {
@@ -13,9 +13,7 @@
   let results = $state<readonly ListedPlace[]>([]);
   let status = $state('');
   let busy = $state(false);
-
-  /** About 1 km: precise enough for city air, and it avoids sending an exact home position. */
-  const round2 = (value: number): number => Math.round(value * 100) / 100;
+  let heading = $state<HTMLHeadingElement>();
 
   async function search(event: SubmitEvent): Promise<void> {
     event.preventDefault();
@@ -36,6 +34,8 @@
     results = [];
     status = '';
     onselect({ name: choice.name, lat: choice.lat, lon: choice.lon });
+    // The chosen button disappears; keep keyboard focus in this section.
+    heading?.focus();
   }
 
   function locate(): void {
@@ -55,7 +55,7 @@
 </script>
 
 <section class="card" aria-labelledby="place-heading">
-  <h2 id="place-heading">Where you live</h2>
+  <h2 id="place-heading" tabindex="-1" bind:this={heading}>Where you live</h2>
   {#if place}
     <p class="muted">Showing air for <strong>{place.name}</strong>.</p>
   {/if}

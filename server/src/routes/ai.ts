@@ -72,7 +72,7 @@ export function aiRoutes(deps: Deps): Hono {
       system: ASK_SYSTEM,
       prompt: askPrompt(context, plan, question),
       temperature: 0.3,
-      maxOutputTokens: 512,
+      maxOutputTokens: 1024,
     };
     const { value, model } = await gemini.run(request, (text) => {
       const answer = text.trim();

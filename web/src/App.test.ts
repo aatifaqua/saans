@@ -2,7 +2,7 @@ import { fireEvent, render, screen } from '@testing-library/svelte';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { axe } from 'vitest-axe';
 import App from './App.svelte';
-import { PLACE, readings } from './test-fixtures.ts';
+import { PLACE, PLAN, readings } from './test-fixtures.ts';
 
 beforeEach(() => {
   localStorage.clear();
@@ -60,6 +60,61 @@ describe('App', () => {
     );
     await fireEvent.click(screen.getByRole('button', { name: 'Retry' }));
     expect(await screen.findByRole('heading', { name: /Air in Delhi/ })).toBeInTheDocument();
+  });
+
+  it('ignores a forecast that arrives after the user has picked another place', async () => {
+    const pending: ((res: Response) => void)[] = [];
+    vi.stubGlobal(
+      'fetch',
+      vi.fn((url: string) =>
+        url.startsWith('/api/places')
+          ? Promise.resolve(
+              Response.json({
+                places: [
+                  { name: 'Agra', region: 'Uttar Pradesh', lat: 27.18, lon: 78.01 },
+                  { name: 'Patna', region: 'Bihar', lat: 25.59, lon: 85.14 },
+                ],
+              }),
+            )
+          : new Promise<Response>((resolve) => {
+              pending.push(resolve);
+            }),
+      ),
+    );
+    render(App);
+    await fireEvent.input(screen.getByLabelText('City or town'), { target: { value: 'ci' } });
+    await fireEvent.submit(screen.getByRole('search'));
+    await fireEvent.click(await screen.findByRole('button', { name: /Agra/ }));
+    await fireEvent.submit(screen.getByRole('search'));
+    await fireEvent.click(await screen.findByRole('button', { name: /Patna/ }));
+    const air = { utcOffsetSeconds: 19_800, readings: readings() };
+    pending[1]?.(Response.json(air));
+    expect(await screen.findByRole('heading', { name: /Air in Patna/ })).toBeInTheDocument();
+    pending[0]?.(Response.json({ error: 'Agra failed' }, { status: 502 }));
+    await new Promise((resolve) => setTimeout(resolve, 20));
+    expect(screen.getByRole('heading', { name: /Air in Patna/ })).toBeInTheDocument();
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+  });
+
+  it('clears the plan when the household changes', async () => {
+    localStorage.setItem('saans', JSON.stringify({ place: PLACE }));
+    vi.stubGlobal(
+      'fetch',
+      vi.fn((url: string) =>
+        Promise.resolve(
+          Response.json(
+            url === '/api/plan'
+              ? { plan: PLAN, model: 'm' }
+              : { utcOffsetSeconds: 19_800, readings: readings() },
+          ),
+        ),
+      ),
+    );
+    render(App);
+    await fireEvent.click(await screen.findByRole('button', { name: "Make today's plan" }));
+    expect(await screen.findByText('Quick school drop by car')).toBeInTheDocument();
+    await fireEvent.click(screen.getByLabelText('Asthma'));
+    expect(screen.queryByText('Quick school drop by car')).not.toBeInTheDocument();
   });
 
   it('loads air for a newly chosen place and recomputes it for the household', async () => {

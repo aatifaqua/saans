@@ -1,4 +1,4 @@
-import type { HourReading } from '@saans/core';
+import { round2, type HourReading } from '@saans/core';
 import { z } from 'zod';
 import { createCache } from './cache.ts';
 
@@ -48,9 +48,6 @@ const AirSchema = z.object({
   utc_offset_seconds: z.number(),
   hourly: z.object({ time: z.array(z.string()), pm2_5: reading, pm10: reading }),
 });
-
-/** Two decimals is about 1 km: close enough for city air, and it lets nearby users share a cache entry. */
-export const round2 = (value: number): number => Math.round(value * 100) / 100;
 
 async function getJson(fetchFn: FetchFn, url: string): Promise<unknown> {
   try {

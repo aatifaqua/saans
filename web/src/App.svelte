@@ -26,12 +26,21 @@
   async function load(target: Place): Promise<void> {
     air = null;
     airError = '';
+    let next: Air | null = null;
+    let message = '';
     try {
-      air = await getAir(target);
+      next = await getAir(target);
     } catch (error) {
-      airError = error instanceof ApiError ? error.message : 'Live air data is unavailable.';
+      message = error instanceof ApiError ? error.message : 'Live air data is unavailable.';
     }
+    // A slower answer for a place the user has since left is dropped.
+    if (place !== target) return;
+    air = next;
+    airError = message;
   }
+
+  /** A plan belongs to one household and place; changing either clears it. */
+  const planKey = $derived(JSON.stringify([household, place]));
 
   $effect(() => {
     save({ household, place }, storage);
@@ -83,7 +92,9 @@
     {#if place !== null && day !== null}
       <AirNow {day} {place} />
       <ForecastStrip {day} />
-      <PlanPanel {household} {place} />
+      {#key planKey}
+        <PlanPanel {household} {place} />
+      {/key}
     {/if}
   </div>
 </main>

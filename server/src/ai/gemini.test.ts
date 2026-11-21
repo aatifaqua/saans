@@ -63,6 +63,18 @@ describe('createGemini', () => {
     expect(config?.safetySettings?.length).toBe(4);
   });
 
+  it('treats an answer cut off by the token limit as a failure', async () => {
+    let calls = 0;
+    const generate: GenerateFn = () => {
+      calls += 1;
+      return Promise.resolve(
+        calls === 1 ? { text: 'ok', candidates: [{ finishReason: 'MAX_TOKENS' }] } : { text: 'ok' },
+      );
+    };
+    const gemini = createGemini(generate, { models: ['a', 'b'], ...TIMINGS });
+    expect(await gemini.run(REQUEST, accept)).toMatchObject({ model: 'b' });
+  });
+
   it('treats a response without text as a failed answer', async () => {
     const empty: GenerateFn = () => Promise.resolve({});
     const gemini = createGemini(empty, { models: ['a'], ...TIMINGS });

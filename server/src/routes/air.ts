@@ -20,7 +20,7 @@ export function airRoutes(air: AirSource): Hono {
   app.get('/places', async (c) => {
     const query = PlacesQuery.safeParse(c.req.query());
     if (!query.success) throw invalid('Search for a city name of 2 to 60 characters.');
-    return c.json({ places: await air.places(query.data.q) });
+    return c.json({ places: await air.places(query.data.q), disclaimer: DISCLAIMER });
   });
 
   app.get('/air', async (c) => {

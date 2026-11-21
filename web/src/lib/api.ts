@@ -1,5 +1,5 @@
 import { HACK_IDS, type HourReading, type Household, type Place, type Plan } from '@saans/core';
-import { isPlace } from './storage.ts';
+import { isPlace, isRecord } from './storage.ts';
 
 /** A failed call, with the server's own short message; status 0 means the network failed. */
 export class ApiError extends Error {
@@ -19,8 +19,6 @@ export interface Air {
 
 export type ListedPlace = Place & { readonly region: string };
 
-const isRecord = (value: unknown): value is Record<string, unknown> =>
-  typeof value === 'object' && value !== null;
 const isText = (value: unknown): value is string => typeof value === 'string';
 
 /** Every item is an object whose `keys` are all strings. */

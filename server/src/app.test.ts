@@ -45,7 +45,7 @@ describe('health and headers', () => {
   it('answers unknown API paths with a JSON 404', async () => {
     const res = await createApp(deps()).request('/api/nope');
     expect(res.status).toBe(404);
-    expect(await res.json()).toEqual({ error: 'Not found.' });
+    expect(await res.json()).toEqual({ error: 'Not found.', disclaimer: DISCLAIMER });
   });
 
   it('limits each client to the configured requests per minute', async () => {
@@ -55,6 +55,9 @@ describe('health and headers', () => {
     const statuses: number[] = [];
     for (let i = 0; i < 4; i += 1) statuses.push((await app.request('/api/health')).status);
     expect(statuses).toEqual([200, 200, 200, 429]);
+    expect(await (await app.request('/api/health')).json()).toMatchObject({
+      disclaimer: DISCLAIMER,
+    });
   });
 });
 
@@ -65,6 +68,7 @@ describe('GET /api/places', () => {
     const res = await app.request('/api/places?q=Delhi');
     expect(await res.json()).toEqual({
       places: [{ name: 'Delhi', region: 'Delhi', lat: 28.65, lon: 77.23 }],
+      disclaimer: DISCLAIMER,
     });
     await app.request('/api/places?q=%20delhi%20');
     expect(fetch.urls).toHaveLength(1);
@@ -76,12 +80,15 @@ describe('GET /api/places', () => {
     const app = createApp(deps({ fetch: fakeFetch({ geocode }) }));
     expect(await (await app.request('/api/places?q=Guru')).json()).toEqual({
       places: [{ name: 'Gurugram', region: '', lat: 28.46, lon: 77.03 }],
+      disclaimer: DISCLAIMER,
     });
   });
 
   it('returns an empty list when nothing in India matches', async () => {
     const app = createApp(deps({ fetch: fakeFetch({ geocode: {} }) }));
-    expect(await (await app.request('/api/places?q=Atlantis')).json()).toEqual({ places: [] });
+    expect(await (await app.request('/api/places?q=Atlantis')).json()).toMatchObject({
+      places: [],
+    });
   });
 
   it('rejects a one-letter query', async () => {
@@ -200,7 +207,9 @@ describe('POST /api/plan', () => {
 
   it('rejects bodies over 16 kB', async () => {
     const huge = { household: HOUSEHOLD, place: { ...PLACE, name: 'x'.repeat(20_000) } };
-    expect((await createApp(deps()).request('/api/plan', post(huge))).status).toBe(413);
+    const res = await createApp(deps()).request('/api/plan', post(huge));
+    expect(res.status).toBe(413);
+    expect(await res.json()).toMatchObject({ disclaimer: DISCLAIMER });
   });
 
   it('applies the tighter AI rate limit', async () => {

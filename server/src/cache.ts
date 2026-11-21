@@ -1,7 +1,6 @@
 export interface Cache<T> {
   /** The cached value for `key`, or the result of `load`, shared with any caller already waiting. */
   get(key: string, load: () => Promise<T>): Promise<T>;
-  readonly size: number;
 }
 
 interface Entry<T> {
@@ -38,9 +37,6 @@ export function createCache<T>(options: {
       // A failure is not cached: the next caller tries again.
       value.catch(() => entries.delete(key));
       return value;
-    },
-    get size() {
-      return entries.size;
     },
   };
 }

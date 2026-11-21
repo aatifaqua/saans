@@ -35,9 +35,11 @@
     none: 'Mostly at home',
   };
 
-  /** Counts are clamped to 0 to 12, the same range the server accepts. */
+  /** Counts are clamped to 0 to 12, as the server expects, and the home always has one person. */
   function setCount(key: Member, raw: string): void {
-    const value = Math.min(12, Math.max(0, Math.trunc(Number(raw)) || 0));
+    const { child, adult, olderAdult, pregnant } = household.members;
+    const others = child + adult + olderAdult + pregnant - household.members[key];
+    const value = Math.min(12, Math.max(others === 0 ? 1 : 0, Math.trunc(Number(raw)) || 0));
     onchange({ ...household, members: { ...household.members, [key]: value } });
   }
 

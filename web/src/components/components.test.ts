@@ -53,6 +53,17 @@ describe('HouseholdForm', () => {
     });
   });
 
+  it('never lets the household drop to zero people', async () => {
+    const onchange = vi.fn();
+    const alone = { ...HOUSEHOLD, members: { child: 0, adult: 2, olderAdult: 0, pregnant: 0 } };
+    render(HouseholdForm, { household: alone, onchange });
+    await fireEvent.input(screen.getByLabelText('Adults'), { target: { value: '0' } });
+    expect(onchange).toHaveBeenLastCalledWith({
+      ...alone,
+      members: { ...alone.members, adult: 1 },
+    });
+  });
+
   it('removes a condition when it is unticked and keeps counts in range', async () => {
     const onchange = vi.fn();
     render(HouseholdForm, { household: HOUSEHOLD, onchange });
@@ -75,6 +86,7 @@ describe('PlaceSearch', () => {
     await fireEvent.submit(screen.getByRole('search'));
     await fireEvent.click(await screen.findByRole('button', { name: /Lucknow, Uttar Pradesh/ }));
     expect(onselect).toHaveBeenCalledWith({ name: 'Lucknow', lat: 26.85, lon: 80.95 });
+    expect(document.activeElement).toBe(screen.getByRole('heading', { name: 'Where you live' }));
     expect(await axe(container)).toHaveNoViolations();
   });
 

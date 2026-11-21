@@ -85,8 +85,8 @@ browser (Svelte)                         Cloud Run (Hono)                    ext
 - **Indian National AQI** (CPCB) sub-indices from PM2.5 and PM10 with the published breakpoints;
   the AQI is the higher sub-index. Hourly values use the hourly concentration against the same
   breakpoints (stated as an assumption in the README, since the official index uses 24-hour
-  averages). Bands: Good, Satisfactory, Moderate, Poor, Very Poor, Severe, each with a text label
-  and an icon so colour is never the only signal.
+  averages). Bands: Good, Satisfactory, Moderate, Poor, Very Poor, Severe, each shown by name
+  so colour is never the only signal.
 - **Windows:** from the 48-hour series, the cleanest contiguous 1 to 3 hour windows during waking
   hours (06:00 to 22:00 local) and the worst stretch; "smog episode" when the 24-hour mean is Very
   Poor or worse.
@@ -104,7 +104,7 @@ browser (Svelte)                         Cloud Run (Hono)                    ext
 - `/api/plan`: system prompt (role, India context, general-guidance disclaimer, never diagnose,
   use only the supplied numbers), user payload = compact JSON of the household, the band summary,
   windows and the allowed hack ids. Gemini returns structured JSON validated by zod: routine steps
-  (time, action, reason, window ref), low-emission tips, chosen hacks with tailored text, one-line
+  (time, action, and a reason naming the window or household fact), low-emission tips, chosen hacks with tailored text, one-line
   summary.
 - `/api/ask`: same grounded context plus the question (max 500 characters); plain text answer.
 - Model chain `gemini-3.6-flash` then `gemini-3.5-flash` (configurable by env), per-model timeout
