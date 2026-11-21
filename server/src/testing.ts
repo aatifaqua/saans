@@ -1,9 +1,8 @@
 import type { GenerateContentParameters } from '@google/genai';
-import type { Household } from '@saans/core';
+import type { Household, Plan } from '@saans/core';
 import type { GenerateFn } from './ai/gemini.ts';
 import type { AppDeps } from './app.ts';
 import type { Config } from './config.ts';
-import type { Plan } from './schemas.ts';
 import type { FetchFn } from './openMeteo.ts';
 
 export const NOW = Date.parse('2026-11-22T00:30:00Z'); // 06:00 in India

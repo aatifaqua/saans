@@ -83,6 +83,25 @@ export interface Note {
   readonly why: string;
 }
 
+/** Today's plan as Gemini writes it; the server validates it against this shape. */
+export interface Plan {
+  readonly summary: string;
+  readonly routine: readonly {
+    readonly time: string;
+    readonly action: string;
+    readonly why: string;
+  }[];
+  readonly lowEmission: readonly { readonly tip: string; readonly why: string }[];
+  readonly hacks: readonly { readonly id: HackId; readonly how: string }[];
+}
+
+/** A place the forecast is fetched for; `name` is what the user sees and the model is told. */
+export interface Place {
+  readonly name: string;
+  readonly lat: number;
+  readonly lon: number;
+}
+
 /** Shown on every surface that gives advice: the UI, API responses, prompts and errors. */
 export const DISCLAIMER =
   'General guidance, not medical advice. If anyone has trouble breathing or chest pain, seek medical care.';

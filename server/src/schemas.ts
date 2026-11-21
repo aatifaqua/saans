@@ -1,4 +1,4 @@
-import { COMMUTES, HACK_IDS, SENSITIVITIES, type HackId } from '@saans/core';
+import { COMMUTES, HACK_IDS, SENSITIVITIES, type HackId, type Plan } from '@saans/core';
 import { z } from 'zod';
 
 const count = z.number().int().min(0).max(12);
@@ -23,7 +23,7 @@ export const PlaceSchema = z.strictObject({
 const line = z.string().trim().min(1).max(400);
 
 /** The plan Gemini must return; the same schema checks a plan sent back with a question. */
-export const PlanSchema = z.strictObject({
+export const PlanSchema: z.ZodType<Plan> = z.strictObject({
   summary: line,
   routine: z
     .array(z.strictObject({ time: z.string().trim().min(1).max(40), action: line, why: line }))
@@ -38,7 +38,6 @@ export const PlanSchema = z.strictObject({
     .min(3)
     .max(5),
 });
-export type Plan = z.infer<typeof PlanSchema>;
 
 export const PlanRequestSchema = z.strictObject({ household: HouseholdSchema, place: PlaceSchema });
 

@@ -3,8 +3,8 @@ import { svelteTesting } from '@testing-library/svelte/vite';
 import viteConfig from './vite.config.ts';
 
 /** Component tests run in jsdom with axe matchers; main.ts only mounts the app. */
-export default defineConfig((env) =>
-  mergeConfig(viteConfig(env), {
+export default defineConfig(
+  mergeConfig(viteConfig, {
     plugins: [svelteTesting()],
     test: {
       environment: 'jsdom',
@@ -15,7 +15,8 @@ export default defineConfig((env) =>
         provider: 'v8',
         include: ['src/**/*.{ts,svelte}'],
         exclude: ['src/**/*.test.ts', 'src/test-fixtures.ts', 'src/main.ts', 'src/**/*.d.ts'],
-        thresholds: { lines: 90, functions: 90, branches: 90, statements: 90 },
+        // Branch counts include the update paths Svelte compiles into every {#each} block.
+        thresholds: { lines: 95, functions: 95, branches: 85, statements: 95 },
       },
     },
   }),

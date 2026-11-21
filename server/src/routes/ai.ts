@@ -6,20 +6,14 @@ import {
   outlook,
   type HackId,
   type Household,
+  type Place,
 } from '@saans/core';
 import { Hono } from 'hono';
-import type { z } from 'zod';
 import { askPrompt, ASK_SYSTEM, planPrompt, PLAN_SYSTEM } from '../ai/prompts.ts';
 import { GeminiUnavailableError, type Gemini } from '../ai/gemini.ts';
 import { readJson } from '../errors.ts';
 import type { AirSource } from '../openMeteo.ts';
-import {
-  AskRequestSchema,
-  parsePlan,
-  PLAN_JSON_SCHEMA,
-  PlanRequestSchema,
-  type PlaceSchema,
-} from '../schemas.ts';
+import { AskRequestSchema, parsePlan, PLAN_JSON_SCHEMA, PlanRequestSchema } from '../schemas.ts';
 
 const MAX_ANSWER_CHARS = 2000;
 
@@ -36,7 +30,7 @@ interface Deps {
 async function ground(
   deps: Deps,
   household: Household,
-  place: z.infer<typeof PlaceSchema>,
+  place: Place,
 ): Promise<{ context: string; allowed: readonly HackId[] }> {
   const air = await deps.air.air(place.lat, place.lon);
   const day = outlook(air.readings, household, localHour(deps.now(), air.utcOffsetSeconds));
