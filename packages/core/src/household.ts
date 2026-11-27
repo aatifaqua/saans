@@ -38,7 +38,10 @@ const COMMUTE_NOTES: Readonly<Record<Commute, Note | null>> = {
   none: null,
 };
 
-/** Precautions that follow from who lives in the home and how they travel, each with its reason. */
+/**
+ * Precautions that follow from who lives in the home and how they travel, each with its reason.
+ * They are facts given to Gemini as grounding and are never shown on their own.
+ */
 export function householdNotes(household: Household): readonly Note[] {
   const { members, sensitivities } = household;
   const notes: Note[] = [];

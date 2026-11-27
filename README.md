@@ -1,8 +1,9 @@
 # Saans
 
-**An urban air quality assistant that helps families beat severe winter smog: live air for your
-city, the cleanest hours of the day, and a personalised low-emission routine with indoor air hacks,
-written live by Google Gemini for your household.**
+**A GenAI assistant that helps families and communities get through severe winter smog: live air
+for your city, the cleanest hours of the day, and a plan written live by Google Gemini for your
+household, with a low-emission routine, indoor air quality hacks, sustainable alternatives and
+community actions, each explaining its direct impact.**
 
 Live app: **https://saans-23907312550.asia-south1.run.app**
 
@@ -15,24 +16,34 @@ _Saans_ means "breath" in Hindi and Urdu.
 
 ## Chosen vertical
 
-**Urban Air Quality Assistant.** The brief: _"Build an Urban Air Quality Assistant to help
-families beat severe winter smog with personalized low-emission routines and indoor air hacks."_
+**Urban Air Quality Assistant** (Challenge 06). The problem statement:
+
+> Create a GenAI-powered assistant that helps families and communities navigate severe winter
+> smog and urban air pollution. The application should suggest low-emission daily routines,
+> indoor air quality hacks, and sustainable alternatives tailored to their location and
+> lifestyle, while clearly explaining the direct impact of their choices.
 
 Every winter, cities across North India sit under smog for weeks. Families know the air is bad
 but not what to do about it today: when it is least harmful to take the children out, whether to
 open the windows, how to commute without breathing (or adding to) the worst of it, and which
-cheap indoor changes actually help. Saans turns today's forecast into a plan for one household.
+cheap indoor changes actually help. Saans turns today's forecast into a plan for one household
+and its neighbourhood.
 
 ## Requirement → feature → file
 
-| Brief                              | Feature                                                                                                                                                                                                                                                                      | Where                                                                                                                                                                                           |
-| :--------------------------------- | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Urban air quality                  | Live current AQI and a 48-hour hourly forecast for any Indian city (search or device location), on the Indian National AQI scale computed from PM2.5 and PM10                                                                                                                | [aqi.ts](packages/core/src/aqi.ts), [openMeteo.ts](server/src/openMeteo.ts), [AirNow.svelte](web/src/components/AirNow.svelte), [ForecastStrip.svelte](web/src/components/ForecastStrip.svelte) |
-| Help families                      | Household profile: children, adults, older adults, pregnancy, asthma, heart or lung conditions, commute, outdoor exercise, purifier. A vulnerable member lowers the household's outdoor limit                                                                                | [household.ts](packages/core/src/household.ts), [HouseholdForm.svelte](web/src/components/HouseholdForm.svelte)                                                                                 |
-| Beat severe winter smog            | Smog-episode detection, the cleanest waking-hour windows within the household's limit (or the least bad hour when none qualifies), and the worst stretch to keep windows shut                                                                                                | [windows.ts](packages/core/src/windows.ts)                                                                                                                                                      |
-| Personalised low-emission routines | Gemini writes today's routine (outings, school run, exercise, airing the home) inside the computed windows, plus tips that cut the family's own emissions (trips, idling, heating, burning), each with its reason                                                            | [routes/ai.ts](server/src/routes/ai.ts), [prompts.ts](server/src/ai/prompts.ts), [PlanPanel.svelte](web/src/components/PlanPanel.svelte)                                                        |
-| Indoor air hacks                   | A sourced catalogue of 13 hacks (DIY box fan filter, purifier sizing and run times, sealing gaps, clean room, kitchen exhaust, wet mopping and more); the day and household decide which are offered, Gemini picks and tailors them, the server rejects any outside the list | [hacks.ts](packages/core/src/hacks.ts), [schemas.ts](server/src/schemas.ts)                                                                                                                     |
-| GenAI assistant                    | Follow-up questions answered by Gemini with the same live air and household context and the plan on screen                                                                                                                                                                   | [AskBox.svelte](web/src/components/AskBox.svelte), [routes/ai.ts](server/src/routes/ai.ts)                                                                                                      |
+| Problem statement                                     | Feature                                                                                                                                                                                                                                                                          | Where                                                                                                                                                                                              |
+| :---------------------------------------------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| GenAI-powered assistant                               | Every plan and answer is written live by Gemini on request, as schema-checked JSON grounded on the forecast; the UI names the model that wrote it                                                                                                                                | [gemini.ts](server/src/ai/gemini.ts), [routes/ai.ts](server/src/routes/ai.ts), [PlanPanel.svelte](web/src/components/PlanPanel.svelte)                                                             |
+| Families                                              | Household profile: children, adults, older adults, pregnancy, asthma, heart or lung conditions, commute, outdoor exercise, purifier. A vulnerable member lowers the household's outdoor limit                                                                                    | [household.ts](packages/core/src/household.ts), [HouseholdForm.svelte](web/src/components/HouseholdForm.svelte)                                                                                    |
+| Communities                                           | "For your community": 1 to 3 actions for the building, school or neighbourhood (shared trips, no burning, alerts for neighbours), each with its impact                                                                                                                           | [schemas.ts](server/src/schemas.ts), [prompts.ts](server/src/ai/prompts.ts), [PlanPanel.svelte](web/src/components/PlanPanel.svelte)                                                               |
+| Navigate severe winter smog and urban air pollution   | Live current AQI and a 48-hour hourly forecast on the Indian National AQI scale, smog-episode detection, the cleanest waking-hour windows within the household's limit and the worst stretch                                                                                     | [aqi.ts](packages/core/src/aqi.ts), [windows.ts](packages/core/src/windows.ts), [AirNow.svelte](web/src/components/AirNow.svelte), [ForecastStrip.svelte](web/src/components/ForecastStrip.svelte) |
+| Low-emission daily routines                           | Today's routine (outings, school run, exercise, airing the home) placed inside the computed clean windows, each step saying which window or household fact it relies on                                                                                                          | [prompts.ts](server/src/ai/prompts.ts), [PlanPanel.svelte](web/src/components/PlanPanel.svelte)                                                                                                    |
+| Indoor air quality hacks                              | A sourced catalogue of 13 hacks (DIY box fan filter, purifier sizing and run times, sealing gaps, clean room, kitchen exhaust, wet mopping and more); the day and household decide which are offered, Gemini picks and tailors them, and the server rejects any outside the list | [hacks.ts](packages/core/src/hacks.ts), [schemas.ts](server/src/schemas.ts)                                                                                                                        |
+| Sustainable alternatives                              | 2 to 5 swaps that fit the household's lifestyle (metro instead of the car, electric heat instead of burning, combined errands), each as "instead of" with its impact                                                                                                             | [prompts.ts](server/src/ai/prompts.ts), [PlanPanel.svelte](web/src/components/PlanPanel.svelte)                                                                                                    |
+| Tailored to their location                            | Place search across India or device location (rounded to about 1 km); every number comes from that place's live forecast in its own time zone                                                                                                                                    | [openMeteo.ts](server/src/openMeteo.ts), [PlaceSearch.svelte](web/src/components/PlaceSearch.svelte), [windows.ts](packages/core/src/windows.ts)                                                   |
+| Tailored to their lifestyle                           | Commute mode, outdoor exercise, purifier ownership and health conditions change the limit, the offered hacks and the grounding Gemini writes from                                                                                                                                | [household.ts](packages/core/src/household.ts), [hacks.ts](packages/core/src/hacks.ts), [context.ts](packages/core/src/context.ts)                                                                 |
+| Clearly explaining the direct impact of their choices | Every alternative, hack and community action carries an "Impact" line; routine steps carry their "Why"; numbers appear only when they come from the forecast                                                                                                                     | [schemas.ts](server/src/schemas.ts), [prompts.ts](server/src/ai/prompts.ts), [PlanPanel.svelte](web/src/components/PlanPanel.svelte)                                                               |
+| Follow-up questions                                   | Ask about today: Gemini answers with the same live air, household and plan on screen; breathing trouble or chest pain is always referred to medical care                                                                                                                         | [AskBox.svelte](web/src/components/AskBox.svelte), [routes/ai.ts](server/src/routes/ai.ts)                                                                                                         |
 
 ## Approach and logic
 
@@ -77,12 +88,12 @@ browser (Svelte)                          Cloud Run (Hono, stateless)           
 
 ## Google services used
 
-| Service                                                                                                                                    | Where and why                                                                                                                                                                                       |
-| :----------------------------------------------------------------------------------------------------------------------------------------- | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Gemini API** (`gemini-3.5-flash-lite`, `gemini-3.1-flash-lite`, `gemini-flash-lite-latest`, then `gemini-3.6-flash`) via `@google/genai` | Writes the routine, low-emission tips and tailored hacks as schema-constrained JSON, and answers follow-up questions: [gemini.ts](server/src/ai/gemini.ts), [routes/ai.ts](server/src/routes/ai.ts) |
-| **Cloud Run** (asia-south1)                                                                                                                | Hosts the one container that serves the API and the web app: [Dockerfile](Dockerfile)                                                                                                               |
-| **Secret Manager**                                                                                                                         | Holds the Gemini API key, injected into Cloud Run at deploy                                                                                                                                         |
-| **Cloud Build and Artifact Registry**                                                                                                      | Build the container from source on deploy                                                                                                                                                           |
+| Service                                                                                                                                    | Where and why                                                                                                                                                                                                                                   |
+| :----------------------------------------------------------------------------------------------------------------------------------------- | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Gemini API** (`gemini-3.5-flash-lite`, `gemini-3.1-flash-lite`, `gemini-flash-lite-latest`, then `gemini-3.6-flash`) via `@google/genai` | Writes the routine, sustainable alternatives, tailored hacks and community actions with their impact as schema-constrained JSON, and answers follow-up questions: [gemini.ts](server/src/ai/gemini.ts), [routes/ai.ts](server/src/routes/ai.ts) |
+| **Cloud Run** (asia-south1)                                                                                                                | Hosts the one container that serves the API and the web app: [Dockerfile](Dockerfile)                                                                                                                                                           |
+| **Secret Manager**                                                                                                                         | Holds the Gemini API key, injected into Cloud Run at deploy                                                                                                                                                                                     |
+| **Cloud Build and Artifact Registry**                                                                                                      | Build the container from source on deploy                                                                                                                                                                                                       |
 
 ## Assumptions
 
@@ -97,17 +108,24 @@ browser (Svelte)                          Cloud Run (Hono, stateless)           
 
 ## Quality
 
-- TypeScript strict (`noUncheckedIndexedAccess`, `exactOptionalPropertyTypes`), ESLint
-  `strictTypeChecked` with complexity budgets and zero warnings, Prettier.
-- 128 tests (Vitest) with coverage thresholds: the domain core at 100 %, the server at 95 %, and
-  every component audited with axe.
-- Accessibility: skip link, landmarks, labelled controls, bands named in words (never colour
-  alone), a table alternative to the chart, live regions for AI results, visible focus, reduced
-  motion, light and dark themes.
-- Efficiency: 24 kB of gzipped JavaScript, tree-shakeable core, the outlook recomputed in the
-  browser with no request, cached and coalesced upstream calls, compression and immutable
-  caching of hashed assets.
-- Security: see [SECURITY.md](SECURITY.md).
+| Area          | Evidence                                                                                                                                                                                                                                                                                                                                     |
+| :------------ | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Code quality  | TypeScript strict (`noUncheckedIndexedAccess`, `exactOptionalPropertyTypes`), ESLint `strictTypeChecked` with complexity and size budgets, zero warnings, no type casts, a doc comment on every export, one pure domain package shared by server and browser: [eslint.config.js](eslint.config.js), [tsconfig.base.json](tsconfig.base.json) |
+| Security      | Stateless server, strict CSP and every hardening header stated, same-site JSON gate, zod on every input, rate limits, key in Secret Manager, CodeQL, dependency review and a secret scan in CI: [SECURITY.md](SECURITY.md)                                                                                                                   |
+| Efficiency    | Measured below; the outlook is recomputed in the browser with no request, upstream calls are cached and coalesced, hashed assets are immutable, and a CI budget fails the build above 30 kB of JavaScript: [size-budget.js](web/size-budget.js)                                                                                              |
+| Testing       | 163 tests; 100 % coverage gates on the core and the server, 100 % lines and functions on the web app: [TESTING.md](TESTING.md)                                                                                                                                                                                                               |
+| Accessibility | WCAG 2.2 AA design with contrast checked in tests for both themes and axe on every component state: [ACCESSIBILITY.md](ACCESSIBILITY.md)                                                                                                                                                                                                     |
+
+Measured on the live app (gzip):
+
+| What                    | Size            | Cached                                     |
+| :---------------------- | :-------------- | :----------------------------------------- |
+| JavaScript bundle       | 23.5 kB         | a year (content-hashed)                    |
+| Stylesheet              | 1.9 kB          | a year (content-hashed)                    |
+| Page                    | 0.8 kB          | revalidated each visit                     |
+| `/api/air` (72 hours)   | 0.8 kB          | 15 min on the server, 5 min in the browser |
+| `/api/places`           | 0.2 kB          | a day                                      |
+| `/api/plan`, `/api/ask` | about 1 to 2 kB | never: each answer is live                 |
 
 ## Run locally
 

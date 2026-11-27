@@ -1,8 +1,9 @@
 # Saans: design
 
-Saans (Hindi and Urdu for "breath") is an urban air quality assistant that helps families get
-through severe winter smog with a personalised, low-emission daily routine and indoor air hacks,
-built on live air quality data and Google Gemini.
+Saans (Hindi and Urdu for "breath") is a GenAI assistant that helps families and communities
+navigate severe winter smog: a low-emission daily routine, indoor air quality hacks, sustainable
+alternatives and community actions tailored to the household's location and lifestyle, each
+explaining its direct impact, built on live air quality data and Google Gemini.
 
 ## 1. Problem and intent
 
@@ -14,16 +15,23 @@ plan for this household, today.
 
 ## 2. Goals, non-goals, anti-goals
 
-Goals (each traces to a phrase of the problem statement):
+Goals (each traces to a phrase of the problem statement: "Create a GenAI-powered assistant that
+helps families and communities navigate severe winter smog and urban air pollution. The
+application should suggest low-emission daily routines, indoor air quality hacks, and sustainable
+alternatives tailored to their location and lifestyle, while clearly explaining the direct impact
+of their choices."):
 
-| Brief phrase                       | Feature                                                                                                                                                                                                                                                                                          |
-| :--------------------------------- | :----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Urban air quality                  | Live current AQI and a 48-hour hourly forecast for the family's city (search by name or use device location), shown on the Indian National AQI scale                                                                                                                                             |
-| Help families                      | A household profile: who lives at home (children, adults, older adults, pregnancy), health sensitivities (asthma, heart or lung condition), commute and outdoor habits                                                                                                                           |
-| Beat severe winter smog            | Smog-episode detection and the cleanest and worst windows of the next 48 hours, computed deterministically from the forecast                                                                                                                                                                     |
-| Personalised low-emission routines | Gemini writes today's routine for this household: when to go out, exercise, air the home, how to commute; each step cites the forecast window it relies on. "Low-emission" covers both lowering the family's exposure and lowering what the family emits (car idling, trip chaining, no burning) |
-| Indoor air hacks                   | Gemini picks and tailors hacks from a curated, sourced catalogue (DIY box-fan filter, purifier sizing, sealing, cooking and incense habits, ventilation timing) to the household and today's air                                                                                                 |
-| GenAI assistant                    | A follow-up "Ask" box: questions about today's plan answered by Gemini with the same air and household context                                                                                                                                                                                   |
+| Brief phrase                       | Feature                                                                                  |
+| :--------------------------------- | :--------------------------------------------------------------------------------------- |
+| GenAI-powered assistant            | Gemini writes every plan and answer live; nothing stands in for it                       |
+| Families                           | A household profile: who lives at home, health sensitivities, commute and outdoor habits |
+| Communities                        | 1 to 3 actions for the building, school or neighbourhood, each with its impact           |
+| Navigate severe winter smog        | Live AQI, a 48-hour forecast, smog-episode detection, the cleanest and worst windows     |
+| Low-emission daily routines        | Today's routine placed inside the clean windows, each step citing what it relies on      |
+| Indoor air quality hacks           | Gemini picks and tailors hacks from a curated, sourced catalogue                         |
+| Sustainable alternatives           | 2 to 5 lifestyle swaps ("this instead of that"), each with its impact                    |
+| Tailored to location and lifestyle | The place's own forecast and time zone; commute, exercise, purifier and health facts     |
+| Direct impact of their choices     | An "Impact" line on every alternative, hack and community action                         |
 
 Non-goals: accounts, server-side storage, multiple saved households, notifications, maps,
 languages other than English, pollutant chemistry beyond PM2.5 / PM10, any feature the brief
@@ -41,8 +49,6 @@ Anti-goals (failure even if it works):
 ## 3. Constraints
 
 - Public GitHub repository under `aatifaqua`, under 10 MB, single branch `main`.
-- Deadline 2026-11-29 23:59 IST; at most three graded submissions; a demo video link (unlisted
-  YouTube) is part of the submission.
 - Gemini via the Gemini API key; key never in the repository, held in Google Secret Manager in
   production and in a gitignored `server/.env` locally.
 - Air data: Open-Meteo Air Quality and Geocoding APIs (free, no key).
@@ -90,8 +96,8 @@ browser (Svelte)                         Cloud Run (Hono)                    ext
 - **Windows:** from the 48-hour series, the cleanest contiguous 1 to 3 hour windows during waking
   hours (06:00 to 22:00 local) and the worst stretch; "smog episode" when the 24-hour mean is Very
   Poor or worse.
-- **Household rules:** a small table maps profile facts to constraints passed to the model and
-  shown as "Why?" reasons, for example: children or older adults or a sensitive member lowers the
+- **Household rules:** a small table maps profile facts to notes that are given to Gemini as
+  grounding (never shown on their own), for example: children or older adults or a sensitive member lowers the
   outdoor threshold by one band; asthma adds "keep reliever inhaler on outings"; a car commute adds
   "no idling, recirculate cabin air, combine trips".
 - **Hack catalogue:** about 15 hacks, each with an id (string literal union), the conditions it
@@ -104,7 +110,8 @@ browser (Svelte)                         Cloud Run (Hono)                    ext
 - `/api/plan`: system prompt (role, India context, general-guidance disclaimer, never diagnose,
   use only the supplied numbers), user payload = compact JSON of the household, the band summary,
   windows and the allowed hack ids. Gemini returns structured JSON validated by zod: routine steps
-  (time, action, and a reason naming the window or household fact), low-emission tips, chosen hacks with tailored text, one-line
+  (time, action, and a reason naming the window or household fact), sustainable alternatives
+  (choice, impact), chosen hacks (how, impact), community actions (action, impact), and a one-line
   summary.
 - `/api/ask`: same grounded context plus the question (max 500 characters); plain text answer.
 - Model chain `gemini-3.5-flash-lite`, `gemini-3.1-flash-lite`, `gemini-flash-lite-latest`, then `gemini-3.6-flash` (configurable by env), per-model timeout
