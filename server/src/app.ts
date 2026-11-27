@@ -22,8 +22,11 @@ export interface AppDeps {
 }
 
 const MAX_BODY_BYTES = 16 * 1024;
-/** Per model, and for the whole chain; well inside Cloud Run's request timeout. */
-const TIMINGS: Omit<GeminiOptions, 'models'> = { callTimeoutMs: 20_000, deadlineMs: 45_000 };
+/**
+ * A stalled model is dropped after 15 s so the chain reaches the next one; the whole chain stops
+ * at 55 s, well inside Cloud Run's request timeout.
+ */
+const TIMINGS: Omit<GeminiOptions, 'models'> = { callTimeoutMs: 15_000, deadlineMs: 55_000 };
 
 export function createApp(deps: AppDeps): Hono {
   const { config } = deps;

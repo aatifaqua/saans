@@ -40,14 +40,6 @@ const SAFETY_SETTINGS = [
   HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT,
 ].map((category) => ({ category, threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE }));
 
-/** Busy (429), server errors (5xx) and our own timeouts are worth another model; a 400 is not. */
-function worthRetrying(error: unknown): boolean {
-  if (error instanceof GeminiUnavailableError) return true;
-  const status =
-    typeof error === 'object' && error !== null && 'status' in error ? error.status : 0;
-  return status === 429 || (typeof status === 'number' && status >= 500);
-}
-
 /** Rejects when `signal` aborts, so a call that ignores its signal still cannot hang the chain. */
 function untilAborted<T>(promise: Promise<T>, signal: AbortSignal): Promise<T> {
   return new Promise<T>((resolve, reject) => {
@@ -97,8 +89,9 @@ export function createGemini(generate: GenerateFn, options: GeminiOptions) {
           const truncated = response.candidates?.[0]?.finishReason === 'MAX_TOKENS';
           const value = truncated ? null : accept(response.text ?? '');
           if (value !== null) return { value, model };
-        } catch (error) {
-          if (!worthRetrying(error)) break;
+        } catch {
+          // Busy, slow, retired (404) or rejected: any failure moves on to the next model, so
+          // one bad model never stops the chain while another could still answer live.
         }
       }
       throw new GeminiUnavailableError('no model produced a usable answer');

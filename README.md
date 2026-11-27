@@ -69,19 +69,20 @@ browser (Svelte)                          Cloud Run (Hono, stateless)           
    windows instantly, with no request.
 3. **Make today's plan.** The server fetches the forecast itself (so the numbers cannot be
    altered by the client), builds the grounding, and asks Gemini. Models are tried in order
-   (`gemini-3.6-flash`, then `gemini-3.5-flash`) with per-model timeouts and an overall deadline;
+   (`gemini-3.5-flash-lite`, `gemini-3.1-flash-lite`, `gemini-flash-lite-latest`, then `gemini-3.6-flash`) with a 15 s per-model timeout and a 55 s overall deadline;
+   any failure (busy, slow, retired or rejected) moves on to the next model, and
    an answer that fails the schema or names an unoffered hack counts as a failure.
 4. **If Gemini is unavailable** the app says so and offers Retry. It never shows saved or canned
    text in place of a live answer.
 
 ## Google services used
 
-| Service                                                                     | Where and why                                                                                                                                                                                       |
-| :-------------------------------------------------------------------------- | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Gemini API** (`gemini-3.6-flash`, `gemini-3.5-flash`) via `@google/genai` | Writes the routine, low-emission tips and tailored hacks as schema-constrained JSON, and answers follow-up questions: [gemini.ts](server/src/ai/gemini.ts), [routes/ai.ts](server/src/routes/ai.ts) |
-| **Cloud Run** (asia-south1)                                                 | Hosts the one container that serves the API and the web app: [Dockerfile](Dockerfile)                                                                                                               |
-| **Secret Manager**                                                          | Holds the Gemini API key, injected into Cloud Run at deploy                                                                                                                                         |
-| **Cloud Build and Artifact Registry**                                       | Build the container from source on deploy                                                                                                                                                           |
+| Service                                                                                                                                    | Where and why                                                                                                                                                                                       |
+| :----------------------------------------------------------------------------------------------------------------------------------------- | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Gemini API** (`gemini-3.5-flash-lite`, `gemini-3.1-flash-lite`, `gemini-flash-lite-latest`, then `gemini-3.6-flash`) via `@google/genai` | Writes the routine, low-emission tips and tailored hacks as schema-constrained JSON, and answers follow-up questions: [gemini.ts](server/src/ai/gemini.ts), [routes/ai.ts](server/src/routes/ai.ts) |
+| **Cloud Run** (asia-south1)                                                                                                                | Hosts the one container that serves the API and the web app: [Dockerfile](Dockerfile)                                                                                                               |
+| **Secret Manager**                                                                                                                         | Holds the Gemini API key, injected into Cloud Run at deploy                                                                                                                                         |
+| **Cloud Build and Artifact Registry**                                                                                                      | Build the container from source on deploy                                                                                                                                                           |
 
 ## Assumptions
 

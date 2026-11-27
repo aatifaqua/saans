@@ -53,6 +53,7 @@
 
 <a class="skip" href="#main">Skip to content</a>
 <header class="site">
+  <img class="logo" src="/favicon.svg" alt="" width="48" height="48" />
   <h1>Saans <span>Clean-air routines for smoggy days</span></h1>
 </header>
 

@@ -107,7 +107,7 @@ browser (Svelte)                         Cloud Run (Hono)                    ext
   (time, action, and a reason naming the window or household fact), low-emission tips, chosen hacks with tailored text, one-line
   summary.
 - `/api/ask`: same grounded context plus the question (max 500 characters); plain text answer.
-- Model chain `gemini-3.6-flash` then `gemini-3.5-flash` (configurable by env), per-model timeout
+- Model chain `gemini-3.5-flash-lite`, `gemini-3.1-flash-lite`, `gemini-flash-lite-latest`, then `gemini-3.6-flash` (configurable by env), per-model timeout
   and an overall deadline, retry only on 429 / 5xx. Safety settings on. Input sanitised (control
   and zero-width characters stripped, prompt markers neutralised).
 - When the chain fails the endpoint returns 503 with a clear message; the UI keeps showing the
@@ -154,9 +154,7 @@ Secret Manager), assumptions, run locally, deploy, disclaimer.
   the mean of those 24 hours.
 - **Region:** place search is limited to India (geocoding `countryCode=IN`). Device location is
   allowed and shown as "Your location" with rounded coordinates.
-- **Setup:** a new Google Cloud project on the existing open billing account; the Gemini key
-  already lists `gemini-3.5-flash`, `3.6-flash`, `3.8-flash`. The GitHub repo is created at
-  publish time. The demo video is in scope after deployment.
+- **Hosting:** one Cloud Run service with the Gemini key from Secret Manager; no static or offline build is deployed.
 
 ## 12. Left to the builder
 

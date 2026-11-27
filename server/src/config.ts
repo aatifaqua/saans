@@ -11,7 +11,16 @@ export interface Config {
   readonly rateLimit: { readonly perMinute: number; readonly aiPerMinute: number };
 }
 
-const DEFAULT_MODELS = ['gemini-3.6-flash', 'gemini-3.5-flash'];
+/**
+ * Fast models first: under heavy demand the larger flash models can stall for tens of seconds
+ * while the lite models still answer in a few, and every answer is schema-checked either way.
+ */
+const DEFAULT_MODELS = [
+  'gemini-3.5-flash-lite',
+  'gemini-3.1-flash-lite',
+  'gemini-flash-lite-latest',
+  'gemini-3.6-flash',
+];
 
 const present = (value: string | undefined): string | undefined => {
   const trimmed = value?.trim();

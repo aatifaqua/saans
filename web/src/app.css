@@ -104,6 +104,17 @@ footer.site {
   padding: 1.5rem 1rem;
 }
 
+header.site {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.logo {
+  border-radius: 12px;
+  flex: none;
+}
+
 header.site h1 {
   font-size: 1.8rem;
   color: var(--accent);

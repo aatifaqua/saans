@@ -20,11 +20,22 @@ describe('createGemini', () => {
     expect(await gemini.run(REQUEST, accept)).toMatchObject({ model: 'b' });
   });
 
-  it('stops at once on an error another model would not fix', async () => {
-    const generate = fakeGenerate([apiError(400), 'ok']);
+  it('moves on from a retired model (404), a rejected request (400) or a network error', async () => {
+    const generate = fakeGenerate([
+      apiError(404),
+      apiError(400),
+      new TypeError('fetch failed'),
+      'ok',
+    ]);
+    const gemini = createGemini(generate, { models: ['a', 'b', 'c', 'd'], ...TIMINGS });
+    expect(await gemini.run(REQUEST, accept)).toEqual({ value: 'ok', model: 'd' });
+  });
+
+  it('fails only after every model has failed', async () => {
+    const generate = fakeGenerate([apiError(503), apiError(404)]);
     const gemini = createGemini(generate, { models: ['a', 'b'], ...TIMINGS });
     await expect(gemini.run(REQUEST, accept)).rejects.toBeInstanceOf(GeminiUnavailableError);
-    expect(generate.calls).toHaveLength(1);
+    expect(generate.calls).toHaveLength(2);
   });
 
   it('gives up on a model that does not answer in time', async () => {
