@@ -32,8 +32,15 @@ describe('health and headers', () => {
     expect(await res.json()).toEqual({ status: 'ok', ai: false });
   });
 
-  it('sends a strict content security policy and hardening headers', async () => {
+  it('leaves HTTPS upgrades off for a plain-HTTP local run', async () => {
     const res = await createApp(deps()).request('/api/health');
+    expect(res.headers.get('content-security-policy')).not.toContain('upgrade-insecure-requests');
+    expect(res.headers.get('strict-transport-security')).toBeNull();
+  });
+
+  it('sends a strict content security policy and hardening headers', async () => {
+    const config = { ...CONFIG, trustProxy: true };
+    const res = await createApp(deps({ config })).request('/api/health');
     const csp = res.headers.get('content-security-policy') ?? '';
     expect(csp).toContain("default-src 'self'");
     expect(csp).toContain("frame-ancestors 'none'");
@@ -89,6 +96,26 @@ describe('health and headers', () => {
       body,
     });
     expect(sameSite.status).toBe(200);
+    const capitalised = await app.request('/api/plan', {
+      method: 'POST',
+      headers: { 'content-type': 'Application/JSON' },
+      body,
+    });
+    expect(capitalised.status).not.toBe(415);
+  });
+
+  it('does not count rejected cross-site posts against the visitor', async () => {
+    const config = { ...CONFIG, rateLimit: { perMinute: 60, aiPerMinute: 1 } };
+    const app = createApp(deps({ config }));
+    const body = JSON.stringify({ household: HOUSEHOLD, place: PLACE });
+    await app.request('/api/plan', {
+      method: 'POST',
+      headers: { 'content-type': 'text/plain' },
+      body,
+    });
+    expect(
+      (await app.request('/api/plan', post({ household: HOUSEHOLD, place: PLACE }))).status,
+    ).toBe(200);
   });
 
   it('never lets a browser or proxy cache an AI answer', async () => {
@@ -217,6 +244,7 @@ describe('POST /api/plan', () => {
     );
     expect(res.status).toBe(200);
     expect(await res.json()).toEqual({ plan: PLAN, model: 'model-a', disclaimer: DISCLAIMER });
+    expect(generate.calls[0]?.config?.maxOutputTokens).toBe(4096);
     const prompt = JSON.stringify(generate.calls[0]);
     expect(prompt).toContain('\\"place\\":\\"Delhi\\"');
     expect(prompt).toContain(DISCLAIMER);

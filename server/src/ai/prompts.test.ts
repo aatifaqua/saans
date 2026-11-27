@@ -9,6 +9,14 @@ describe('sanitize', () => {
   });
 });
 
+describe('sanitize, hidden text', () => {
+  it('strips bidi isolates and invisible tag characters used to smuggle text', () => {
+    expect(sanitize('x\u2067y\u2069z')).toBe('xyz');
+    expect(sanitize('ok\u{E0049}\u{E0047}!')).toBe('ok!');
+    expect(sanitize('smog \u{1F32B} day')).toBe('smog \u{1F32B} day');
+  });
+});
+
 describe('prompts', () => {
   it('state the disclaimer and the grounding rule in both system prompts', () => {
     for (const system of [PLAN_SYSTEM, ASK_SYSTEM]) {

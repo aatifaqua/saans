@@ -29,7 +29,7 @@
   }
 </script>
 
-<section class="card plan" aria-labelledby="plan-heading" aria-busy={busy}>
+<section class="card plan" aria-labelledby="plan-heading">
   <h2 id="plan-heading">Today's plan</h2>
   <p class="muted">Gemini writes a routine for your household from the live forecast above.</p>
   <button type="button" class="primary" onclick={make} disabled={busy}>

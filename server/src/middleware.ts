@@ -7,7 +7,7 @@ import { secureHeaders } from 'hono/secure-headers';
  * defaults: everything from this origin only, no inline script or style (the built app ships one
  * CSS file), no workers, frames or plugins, HTTPS only, and geolocation for this origin only.
  */
-export const securityHeaders = (): MiddlewareHandler =>
+export const securityHeaders = (behindHttps: boolean): MiddlewareHandler =>
   secureHeaders({
     contentSecurityPolicy: {
       defaultSrc: ["'self'"],
@@ -23,9 +23,10 @@ export const securityHeaders = (): MiddlewareHandler =>
       baseUri: ["'self'"],
       formAction: ["'self'"],
       frameAncestors: ["'none'"],
-      upgradeInsecureRequests: [],
+      // Only behind Cloud Run's HTTPS front end; a plain-HTTP local run would break otherwise.
+      ...(behindHttps ? { upgradeInsecureRequests: [] } : {}),
     },
-    strictTransportSecurity: 'max-age=31536000; includeSubDomains',
+    strictTransportSecurity: behindHttps ? 'max-age=31536000; includeSubDomains' : false,
     xFrameOptions: 'DENY',
     xContentTypeOptions: 'nosniff',
     crossOriginOpenerPolicy: 'same-origin',
@@ -59,7 +60,8 @@ export const sameSiteJson = (): MiddlewareHandler => async (c, next) => {
   if (site !== undefined && site !== 'same-origin' && site !== 'none') {
     return c.json({ error: 'Requests must come from this site.', disclaimer: DISCLAIMER }, 403);
   }
-  if (!(c.req.header('content-type') ?? '').startsWith('application/json')) {
+  // Media types are case-insensitive.
+  if (!(c.req.header('content-type') ?? '').toLowerCase().startsWith('application/json')) {
     return c.json({ error: 'Send the request as JSON.', disclaimer: DISCLAIMER }, 415);
   }
   return next();

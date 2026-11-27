@@ -57,7 +57,8 @@ export function aiRoutes(deps: Deps): Hono {
       system: PLAN_SYSTEM,
       prompt: planPrompt(context),
       temperature: 0.4,
-      maxOutputTokens: 2048,
+      // Room for the full plan plus the model's low thinking budget, so answers are not cut off.
+      maxOutputTokens: 4096,
       json: PLAN_JSON_SCHEMA,
     };
     const { value, model } = await gemini.run(request, (text) => parsePlan(text, allowed));

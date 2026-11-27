@@ -177,6 +177,7 @@ describe('PlanPanel and AskBox', () => {
     expect(screen.getByText(/Close windows during the worst hours/)).toBeInTheDocument();
     expect(screen.getByText(/gemini-3.6-flash/)).toBeInTheDocument();
     expect(screen.getByText("Today's plan is ready.")).toBeInTheDocument();
+    expect(container.querySelector('[aria-busy]')).toBeNull();
     for (const heading of [
       'Low-emission routine',
       'Sustainable alternatives',

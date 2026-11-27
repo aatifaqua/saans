@@ -1,24 +1,32 @@
 import { DISCLAIMER, type Plan } from '@saans/core';
 
-// Zero-width and bidi marks, DEL and angle brackets. Removing them means user text can neither
-// hide instructions nor close the <context> block.
+// Zero-width marks, bidi controls and isolates, DEL and angle brackets. Removing them means user
+// text can neither hide instructions nor close the <context> block.
 const STRIPPED = new Set([
   0x3c, 0x3e, 0x7f, 0x200b, 0x200c, 0x200d, 0x200e, 0x200f, 0x202a, 0x202b, 0x202c, 0x202d, 0x202e,
-  0x2060, 0xfeff,
+  0x2060, 0x2066, 0x2067, 0x2068, 0x2069, 0xfeff,
 ]);
 const TAB = 0x09;
 const NEWLINE = 0x0a;
+/** Unicode tag characters render as nothing and can spell out hidden ASCII instructions. */
+const TAGS_START = 0xe0000;
+const TAGS_END = 0xe007f;
 
 /** Control characters other than tab and newline are dropped too. */
 const isUnsafe = (code: number): boolean =>
-  (code < 0x20 && code !== TAB && code !== NEWLINE) || STRIPPED.has(code);
+  (code < 0x20 && code !== TAB && code !== NEWLINE) ||
+  STRIPPED.has(code) ||
+  (code >= TAGS_START && code <= TAGS_END);
 
 /** Removes characters that could hide instructions or break out of the context block. */
-export const sanitize = (text: string): string =>
-  // Every stripped character is in the Basic Multilingual Plane, so one UTF-16 unit is enough.
-  Array.from(text)
-    .filter((char) => !isUnsafe(char.charCodeAt(0)))
-    .join('');
+export const sanitize = (text: string): string => {
+  let clean = '';
+  for (const char of text) {
+    const code = char.codePointAt(0);
+    if (code !== undefined && !isUnsafe(code)) clean += char;
+  }
+  return clean;
+};
 
 const GROUND_RULES = `Use only the numbers, times and facts inside <context>; never invent readings.
 Times are local to the place. Bands use the Indian National AQI scale.

@@ -281,11 +281,6 @@ button.link {
   white-space: nowrap;
 }
 
-.hint {
-  font-size: 0.85rem;
-  color: var(--muted);
-}
-
 .results {
   list-style: none;
   padding: 0;
@@ -300,6 +295,7 @@ button.link {
 }
 
 .hint {
+  font-size: 0.85rem;
   color: var(--muted);
 }
 
@@ -365,9 +361,8 @@ button.link {
   margin: 0;
 }
 
-.tips li {
-  display: grid;
-  gap: 0.15rem;
+.tips li span {
+  display: block;
 }
 
 .windows li,
@@ -481,8 +476,7 @@ td {
 
 /* Windows high contrast mode drops background colours, so bars and the band edge use system colours. */
 @media (forced-colors: active) {
-  .bar,
-  .now {
+  .bar {
     forced-color-adjust: none;
   }
 

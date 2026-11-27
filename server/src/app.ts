@@ -39,13 +39,14 @@ export function createApp(deps: AppDeps): Hono {
   const keyOf = clientKey(config.trustProxy, deps.socketAddress);
 
   const app = new Hono();
-  app.use(securityHeaders());
+  app.use(securityHeaders(config.trustProxy));
   app.use(compress());
+  // Rejected cross-site or non-JSON posts are refused before they count against a visitor.
+  app.use('/api/*', sameSiteJson());
   app.use('/api/*', rateLimit({ perMinute: config.rateLimit.perMinute, now, keyOf }));
   const aiLimit = rateLimit({ perMinute: config.rateLimit.aiPerMinute, now, keyOf });
   app.use('/api/plan', aiLimit);
   app.use('/api/ask', aiLimit);
-  app.use('/api/*', sameSiteJson());
   app.use(
     '/api/*',
     bodyLimit({
