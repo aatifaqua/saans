@@ -14,6 +14,7 @@ describe('prompts', () => {
     for (const system of [PLAN_SYSTEM, ASK_SYSTEM]) {
       expect(system).toContain(DISCLAIMER);
       expect(system).toMatch(/only the numbers/i);
+      expect(system).toMatch(/do not repeat it/i);
     }
   });
 
