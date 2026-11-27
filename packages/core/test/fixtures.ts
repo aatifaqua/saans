@@ -1,3 +1,4 @@
+/** Readings and households shared by the domain tests. */
 import type { Household, HourReading } from '../src/types.ts';
 
 /** PM2.5 concentrations that land in the middle of each band on the Indian scale. */

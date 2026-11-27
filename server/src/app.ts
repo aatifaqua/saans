@@ -1,3 +1,4 @@
+/** Assembles the Hono app from injected dependencies, so tests run the real app offline. */
 import { DISCLAIMER } from '@saans/core';
 import { Hono, type Context } from 'hono';
 import { bodyLimit } from 'hono/body-limit';

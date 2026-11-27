@@ -1,6 +1,5 @@
-import type { HourReading, Place } from '@saans/core';
-
 /** Runtime checks for data that crosses into the app: API answers and saved profiles. */
+import type { HourReading, Place } from '@saans/core';
 
 /** True for a plain object, the first check before reading any field. */
 export const isRecord = (value: unknown): value is Record<string, unknown> =>

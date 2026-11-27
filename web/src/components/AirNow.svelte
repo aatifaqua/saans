@@ -1,3 +1,7 @@
+<!--
+  The air right now and the household's cleanest and worst stretches of the next 24 hours, always
+  as a number with the band's name beside it.
+-->
 <script lang="ts">
   import type { DayOutlook, Place } from '@saans/core';
   import { BAND_LABEL, formatHour } from '../lib/format.ts';

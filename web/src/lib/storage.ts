@@ -1,3 +1,4 @@
+/** Saves and restores the household and place in this browser, tolerating blocked or corrupt storage. */
 import {
   COMMUTES,
   MAX_MEMBER_COUNT,

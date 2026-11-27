@@ -9,6 +9,8 @@
   --ink: #1b2528;
   --muted: #4d5b5f;
   --line: #d5dcd8;
+  /* The edge of a field, at least 3:1 against the card and the page so its boundary is visible. */
+  --field: #6f7e82;
   --accent: #2f6f62;
   --accent-ink: #ffffff;
   --focus: #1f5fbf;
@@ -38,6 +40,7 @@
     --ink: #e7ecea;
     --muted: #a9b5b2;
     --line: #34403f;
+    --field: #7b8a87;
     --accent: #6fbfab;
     --accent-ink: #10201c;
     --focus: #8cb8ff;
@@ -200,7 +203,7 @@ legend {
   display: flex;
   gap: 0.5rem;
   align-items: center;
-  margin-bottom: 0.5rem;
+  min-height: 2.75rem;
 }
 
 input,
@@ -212,12 +215,12 @@ button {
 
 input[type='number'],
 input[type='search'],
-input:not([type]),
+input[type='text'],
 select {
   width: 100%;
   min-height: 2.75rem;
   padding: 0.5rem 0.75rem;
-  border: 1px solid var(--line);
+  border: 1px solid var(--field);
   border-radius: 10px;
   background: var(--bg);
 }
@@ -244,9 +247,26 @@ button.primary {
   color: var(--accent-ink);
 }
 
-button:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
+/* Busy buttons stay focusable and at full contrast; their label or a status says what is happening. */
+button[aria-disabled='true'] {
+  cursor: progress;
+}
+
+/* An invalid field is marked by a thicker border and a message, never by colour alone. */
+input[aria-invalid='true'] {
+  border: 3px solid var(--warn-ink);
+}
+
+.field-error {
+  color: var(--warn-ink);
+  font-size: 0.9rem;
+  font-weight: 600;
+  margin: 0.25rem 0 0;
+}
+
+/* Kept in the page when empty, so screen readers keep listening to the live region. */
+.field-error:empty {
+  margin: 0;
 }
 
 button.link {
@@ -396,26 +416,59 @@ button.link {
   outline-offset: 1px;
 }
 
+/* One column per bar with the bars' own gap, so each label starts under the bar it names. */
+.ticks {
+  display: grid;
+  column-gap: 2px;
+  color: var(--muted);
+  font-size: 0.75rem;
+}
+
+/* A label owns the columns of its 12 bars and is clipped to them, so labels never collide. */
+.ticks span {
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
 .legend {
-  margin-top: 0.75rem;
+  list-style: none;
+  padding: 0;
+  margin: 0.75rem 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 1rem;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.legend li {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  font-size: 0.9rem;
+}
+
+.key[class*='band-'] {
+  background: var(--band);
+}
+
+.table-scroll {
+  max-height: 16rem;
+  overflow-y: auto;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+}
+
+caption {
+  text-align: left;
+  font-weight: 600;
+  padding: 0.5rem;
 }
 
 .key {
   display: inline-block;
   width: 0.75rem;
   height: 0.75rem;
-}
-
-details summary {
-  cursor: pointer;
-  font-weight: 600;
-  min-height: 2.75rem;
-  display: flex;
-  align-items: center;
 }
 
 table {
@@ -476,12 +529,19 @@ td {
 
 /* Windows high contrast mode drops background colours, so bars and the band edge use system colours. */
 @media (forced-colors: active) {
-  .bar {
+  .bar,
+  .key {
     forced-color-adjust: none;
+    background: CanvasText;
   }
 
-  .bar {
-    background: CanvasText;
+  /* Every bar is one system colour here, so the colour key would say nothing: the table does. */
+  .legend li:has(.key[class*='band-']) {
+    display: none;
+  }
+
+  .key.best {
+    background: Highlight;
   }
 
   .bar.best {

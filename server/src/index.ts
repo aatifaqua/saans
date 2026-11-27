@@ -1,3 +1,4 @@
+/** The entry point: reads the environment, wires the real Gemini SDK and fetch, and starts listening. */
 import { serve } from '@hono/node-server';
 import { getConnInfo } from '@hono/node-server/conninfo';
 import { GoogleGenAI } from '@google/genai';

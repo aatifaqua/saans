@@ -1,3 +1,4 @@
+/** The gate that keeps other sites from posting to the API. */
 import { DISCLAIMER } from '@saans/core';
 import type { MiddlewareHandler } from 'hono';
 

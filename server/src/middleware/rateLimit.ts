@@ -1,3 +1,4 @@
+/** Per-client request limits, counted in memory for each minute. */
 import { DISCLAIMER } from '@saans/core';
 import type { Context, MiddlewareHandler } from 'hono';
 

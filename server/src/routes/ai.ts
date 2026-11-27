@@ -1,3 +1,4 @@
+/** The two AI routes: today's plan and a follow-up answer, both written live by Gemini. */
 import {
   candidateHacks,
   DISCLAIMER,

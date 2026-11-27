@@ -1,3 +1,4 @@
+/** The system and user prompts, and the cleaning applied to user text before it enters one. */
 import { DISCLAIMER, type Plan } from '@saans/core';
 
 // Zero-width marks, bidi controls and isolates, DEL and angle brackets. Removing them means user

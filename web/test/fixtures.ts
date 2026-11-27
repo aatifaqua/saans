@@ -1,3 +1,4 @@
+/** A household, place, plan and forecast shared by the web tests. */
 import { vi } from 'vitest';
 import { outlook, type HourReading, type Household, type Place, type Plan } from '@saans/core';
 

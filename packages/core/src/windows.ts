@@ -1,3 +1,4 @@
+/** Turns hourly readings into the day's outlook: the current hour, the clean and worst windows, the peak and smog episodes. */
 import { bandOf, bandRank, naqi } from './aqi.ts';
 import { householdThreshold } from './household.ts';
 import type { AirWindow, Band, DayOutlook, Household, HourAqi, HourReading } from './types.ts';

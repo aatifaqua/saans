@@ -1,3 +1,7 @@
+<!--
+  Today's plan, written by Gemini on request. Progress is announced from outside the busy section,
+  focus moves to the finished plan, and a failure shows an alert with a retry and nothing else.
+-->
 <script lang="ts">
   import { DISCLAIMER, HACKS, type Household, type Place, type Plan } from '@saans/core';
   import { tick } from 'svelte';
@@ -18,6 +22,8 @@
 
   /** Every plan is written by Gemini on request; on failure nothing stands in for it. */
   async function make(): Promise<void> {
+    // The button stays focusable while the plan is written, so a second press is ignored here.
+    if (busy) return;
     busy = true;
     error = '';
     try {
@@ -42,7 +48,7 @@
 <section class="card plan" aria-labelledby="plan-heading" aria-busy={busy}>
   <h2 id="plan-heading">Today's plan</h2>
   <p class="muted">Gemini writes a routine for your household from the live forecast above.</p>
-  <button type="button" class="primary" onclick={make} disabled={busy}>
+  <button type="button" class="primary" onclick={make} aria-disabled={busy}>
     {busy ? 'Writing your plan' : result ? 'Make a fresh plan' : "Make today's plan"}
   </button>
 

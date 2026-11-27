@@ -1,3 +1,4 @@
+/** Shared settings, fixtures and fakes for the server tests. */
 import type { GenerateContentParameters } from '@google/genai';
 import type { Household, Plan } from '@saans/core';
 import type { GenerateFn } from '../src/ai/gemini.ts';

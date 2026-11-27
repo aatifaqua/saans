@@ -1,3 +1,5 @@
+/** Coordinate rounding shared by the browser and the server. */
+
 /**
  * Two decimals is about 1 km: precise enough for city air, it avoids sending an exact home
  * position, and it lets nearby users share one cached forecast.

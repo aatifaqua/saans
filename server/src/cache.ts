@@ -1,3 +1,5 @@
+/** A small in-memory cache with expiry that lets concurrent callers share one load. */
+
 /** A key-value cache whose values are promises, so callers share one load. */
 export interface Cache<T> {
   /** The cached value for `key`, or the result of `load`, shared with any caller already waiting. */

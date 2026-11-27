@@ -1,3 +1,4 @@
+/** Helpers for reading a request body and rejecting a bad one. */
 import type { Context } from 'hono';
 import { HTTPException } from 'hono/http-exception';
 import type { z } from 'zod';

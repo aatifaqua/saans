@@ -27,7 +27,9 @@ describe('HouseholdForm', () => {
 
   it('describes the allowed range of every count field', () => {
     render(HouseholdForm, { household: HOUSEHOLD, onchange: vi.fn() });
-    expect(screen.getByLabelText('Adults')).toHaveAccessibleDescription('0 to 12');
+    expect(screen.getByLabelText('Adults')).toHaveAccessibleDescription(
+      /^Whole numbers from 0 to 12 *$/,
+    );
   });
 
   it('reports outdoor exercise and treats a cleared count as zero', async () => {
@@ -63,5 +65,43 @@ describe('HouseholdForm', () => {
       ...HOUSEHOLD,
       members: { ...HOUSEHOLD.members, adult: 12 },
     });
+  });
+
+  it('marks a corrected count as invalid and explains the correction beside the field', async () => {
+    const { container } = render(HouseholdForm, { household: HOUSEHOLD, onchange: vi.fn() });
+    const adults = screen.getByLabelText('Adults');
+    expect(adults).not.toHaveAttribute('aria-invalid');
+    await fireEvent.input(adults, { target: { value: '99' } });
+    expect(adults).toHaveAttribute('aria-invalid', 'true');
+    expect(adults).toHaveAccessibleDescription(
+      'Whole numbers from 0 to 12 Adults must be a whole number from 0 to 12. Using 12.',
+    );
+    expect(screen.getByLabelText('Pregnant')).not.toHaveAttribute('aria-invalid');
+    expect(await axe(container)).toHaveNoViolations();
+    await fireEvent.input(adults, { target: { value: '2.5' } });
+    expect(adults).toHaveAccessibleDescription(/Using 2\./);
+    await fireEvent.input(adults, { target: { value: '3' } });
+    expect(adults).not.toHaveAttribute('aria-invalid');
+    expect(adults).toHaveAccessibleDescription(/^Whole numbers from 0 to 12 *$/);
+  });
+
+  it('says that a home needs one person when the last count is cleared', async () => {
+    const alone = { ...HOUSEHOLD, members: { child: 0, adult: 1, olderAdult: 0, pregnant: 0 } };
+    render(HouseholdForm, { household: alone, onchange: vi.fn() });
+    await fireEvent.input(screen.getByLabelText('Adults'), { target: { value: '' } });
+    expect(
+      screen.getByText('Adults must be a whole number from 1 to 12. Using 1.'),
+    ).toHaveAttribute('aria-live', 'polite');
+  });
+
+  it('drops a count error once another field makes the household valid', async () => {
+    const alone = { ...HOUSEHOLD, members: { child: 0, adult: 1, olderAdult: 0, pregnant: 0 } };
+    render(HouseholdForm, { household: alone, onchange: vi.fn() });
+    const adults = screen.getByLabelText('Adults');
+    await fireEvent.input(adults, { target: { value: '' } });
+    expect(adults).toHaveAttribute('aria-invalid', 'true');
+    await fireEvent.input(screen.getByLabelText('Children (under 12)'), { target: { value: '2' } });
+    expect(adults).not.toHaveAttribute('aria-invalid');
+    expect(screen.queryByText(/Adults must be/)).not.toBeInTheDocument();
   });
 });

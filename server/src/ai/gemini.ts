@@ -1,3 +1,4 @@
+/** The only module that talks to Gemini: one request, tried against the configured models in order. */
 import {
   HarmBlockThreshold,
   HarmCategory,

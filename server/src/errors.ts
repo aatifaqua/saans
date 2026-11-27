@@ -1,3 +1,4 @@
+/** The single error handler for the API. */
 import { DISCLAIMER } from '@saans/core';
 import type { ErrorHandler } from 'hono';
 import { HTTPException } from 'hono/http-exception';

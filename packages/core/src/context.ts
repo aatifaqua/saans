@@ -1,3 +1,4 @@
+/** Builds the grounding facts the model writes from; nothing else reaches a prompt as data. */
 import { candidateHacks, HACKS } from './hacks.ts';
 import { householdNotes } from './household.ts';
 import type { DayOutlook, Household } from './types.ts';

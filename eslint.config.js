@@ -16,7 +16,8 @@ const budgets = {
 
 export default defineConfig(
   { ignores: ['**/node_modules/**', '**/dist/**', '**/coverage/**'] },
-  { linterOptions: { reportUnusedDisableDirectives: 'error' } },
+  // No rule can be switched off from inside a file; exceptions live here, in the open.
+  { linterOptions: { noInlineConfig: true, reportUnusedDisableDirectives: 'error' } },
   js.configs.recommended,
   tseslint.configs.strictTypeChecked,
   tseslint.configs.stylisticTypeChecked,
@@ -39,6 +40,11 @@ export default defineConfig(
       'svelte/no-at-html-tags': 'error',
       // Logging goes through the one error handler and the start-up line, never ad hoc.
       'no-console': 'error',
+      // Data is narrowed by guards and schemas, never asserted into a type (`as const` is allowed).
+      '@typescript-eslint/consistent-type-assertions': ['error', { assertionStyle: 'never' }],
+      // Work is finished or tracked elsewhere, not parked in a comment.
+      'no-warning-comments': ['error', { terms: ['todo', 'fixme', 'xxx'] }],
+      eqeqeq: 'error',
     },
   },
   {

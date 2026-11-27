@@ -1,3 +1,4 @@
+/** The public surface of the domain package: pure functions and types, no input or output. */
 export { bandOf } from './aqi.ts';
 export { groundingContext } from './context.ts';
 export { round2 } from './geo.ts';

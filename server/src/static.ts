@@ -1,3 +1,4 @@
+/** Hosts the built web app, with cache headers suited to content-hashed assets. */
 import { serveStatic } from '@hono/node-server/serve-static';
 import type { Context, Hono, MiddlewareHandler } from 'hono';
 

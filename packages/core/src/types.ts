@@ -1,3 +1,5 @@
+/** The shared vocabulary: bands, the household, forecast hours, air windows and the plan shape. */
+
 /** Indian National AQI bands, cleanest first; the order is used for comparisons. */
 export const BANDS = ['good', 'satisfactory', 'moderate', 'poor', 'veryPoor', 'severe'] as const;
 export type Band = (typeof BANDS)[number];

@@ -137,9 +137,12 @@ browser (Svelte)                         Cloud Run (Hono)                    ext
   `strictTypeChecked` with complexity budgets and zero warnings; no `any`, no non-null `!`, no
   casts other than `as const`.
 - Vitest with coverage thresholds on all three packages; vitest-axe on every component.
-- Accessibility: skip link, landmarks, labelled form controls, non-colour bands, live region for
-  AI results, reduced motion, visible focus, contrast checked in light and dark.
-- JSDoc on every export stating the reason for non-obvious choices.
+- Accessibility: skip link, landmarks, labelled form controls with text hints and field errors,
+  non-colour bands, the forecast chart described in words with an always-visible table, live
+  regions for AI results, busy buttons that keep focus, reduced motion, visible focus, and
+  contrast for text, field borders and the focus ring checked in light and dark.
+- JSDoc on every export stating the reason for non-obvious choices; every module opens with a
+  comment naming its one job, and a conventions test keeps it so.
 
 ## 10. README shape
 

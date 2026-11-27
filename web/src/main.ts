@@ -1,3 +1,4 @@
+/** Mounts the app into the page. */
 import { mount } from 'svelte';
 import App from './App.svelte';
 import './app.css';

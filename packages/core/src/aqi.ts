@@ -1,3 +1,4 @@
+/** Scores particle concentrations on the Indian National AQI and names the band of an index value. */
 import { BANDS, type Band } from './types.ts';
 
 type Segment = readonly [concLow: number, concHigh: number, indexLow: number, indexHigh: number];

@@ -1,3 +1,4 @@
+/** Zod schemas for everything that enters the API or comes back from the model. */
 import {
   COMMUTES,
   HACK_IDS,

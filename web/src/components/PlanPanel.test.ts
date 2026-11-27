@@ -65,4 +65,27 @@ describe('PlanPanel', () => {
       expect(screen.getByText('Quick school drop by car')).toBeInTheDocument();
     });
   });
+
+  it('keeps the plan button focusable while busy and ignores a second press', async () => {
+    const release: ((res: Response) => void)[] = [];
+    const fetched = vi.fn(
+      () =>
+        new Promise<Response>((resolve) => {
+          release.push(resolve);
+        }),
+    );
+    vi.stubGlobal('fetch', fetched);
+    render(PlanPanel, { household: HOUSEHOLD, place: PLACE });
+    await fireEvent.click(screen.getByRole('button', { name: "Make today's plan" }));
+    const button = screen.getByRole('button', { name: 'Writing your plan' });
+    expect(button).toHaveAttribute('aria-disabled', 'true');
+    expect(button).not.toBeDisabled();
+    await fireEvent.click(button);
+    expect(fetched).toHaveBeenCalledTimes(1);
+    release[0]?.(Response.json({ plan: PLAN, model: 'm', disclaimer: 'd' }));
+    expect(await screen.findByRole('button', { name: 'Make a fresh plan' })).toHaveAttribute(
+      'aria-disabled',
+      'false',
+    );
+  });
 });

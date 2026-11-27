@@ -1,3 +1,4 @@
+/** The Open-Meteo client: place search and the hourly air quality forecast. */
 import { round2, type HourReading, type ListedPlace } from '@saans/core';
 import { z } from 'zod';
 import { createCache } from './cache.ts';

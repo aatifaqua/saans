@@ -1,3 +1,4 @@
+/** The catalogue of indoor air hacks: each one with its source and the rule for when it fits. */
 import { bandRank } from './aqi.ts';
 import { isVulnerable } from './household.ts';
 import { HACK_IDS, type DayOutlook, type HackId, type Household } from './types.ts';

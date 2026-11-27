@@ -1,3 +1,4 @@
+/** The two data routes: place search and the forecast for a place. */
 import { DISCLAIMER } from '@saans/core';
 import { Hono } from 'hono';
 import { z } from 'zod';

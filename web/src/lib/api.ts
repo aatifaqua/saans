@@ -1,3 +1,4 @@
+/** The browser's client for the API; every answer is checked before the app trusts it. */
 import {
   HACK_IDS,
   type HourReading,

@@ -1,3 +1,5 @@
+/** Environment parsing: every runtime setting in one place. */
+
 /** Runtime settings, read once from the environment at startup. */
 export interface Config {
   readonly geminiApiKey: string | undefined;

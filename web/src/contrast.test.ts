@@ -42,6 +42,15 @@ const TEXT_PAIRS = [
   ['accent', 'surface'],
   ['accent-ink', 'accent'],
   ['warn-ink', 'warn-bg'],
+  ['warn-ink', 'surface'],
+] as const;
+
+/** Boundaries a user must see to find a control: field edges and the focus ring. */
+const EDGE_PAIRS = [
+  ['field', 'surface'],
+  ['field', 'bg'],
+  ['focus', 'surface'],
+  ['focus', 'bg'],
 ] as const;
 
 const BANDS = ['good', 'satisfactory', 'moderate', 'poor', 'very-poor', 'severe'] as const;
@@ -52,6 +61,10 @@ describe.each([
 ])('%s theme contrast', (_name, theme) => {
   it.each(TEXT_PAIRS)('text %s on %s meets 4.5:1 (WCAG 1.4.3)', (text, background) => {
     expect(ratio(theme, text, background)).toBeGreaterThanOrEqual(4.5);
+  });
+
+  it.each(EDGE_PAIRS)('edge %s on %s meets 3:1 (WCAG 1.4.11)', (edge, background) => {
+    expect(ratio(theme, edge, background)).toBeGreaterThanOrEqual(3);
   });
 
   it.each(BANDS)('band %s meets 3:1 against the card (WCAG 1.4.11)', (band) => {

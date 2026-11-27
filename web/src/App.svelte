@@ -1,3 +1,7 @@
+<!--
+  The page shell: skip link, landmarks, and the state every section shares (the household, the
+  place and its live forecast). Each section below is its own component.
+-->
 <script lang="ts">
   import { DISCLAIMER, localHour, outlook, type Household, type Place } from '@saans/core';
   import AirNow from './components/AirNow.svelte';
@@ -57,7 +61,7 @@
   <h1>Saans <span>Clean-air routines for smoggy days</span></h1>
 </header>
 
-<main id="main">
+<main id="main" tabindex="-1">
   <div class="column">
     <PlaceSearch
       {place}

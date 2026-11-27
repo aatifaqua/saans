@@ -1,3 +1,4 @@
+/** The security response headers. */
 import type { MiddlewareHandler } from 'hono';
 import { secureHeaders } from 'hono/secure-headers';
 

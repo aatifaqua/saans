@@ -1,3 +1,4 @@
+/** Band names and the time and coordinate formats the page shows. */
 import type { Band } from '@saans/core';
 
 /** The band names users see, so colour is never the only signal. */

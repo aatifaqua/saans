@@ -1,3 +1,4 @@
+/** What a household's make-up means for its outdoor limit and its precautions. */
 import type { Band, Commute, Household, Note } from './types.ts';
 
 /** Children, older adults, pregnancy or a heart, lung or asthma condition. */
