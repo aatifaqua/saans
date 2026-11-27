@@ -18,7 +18,7 @@ export default defineConfig(
         include: ['src/**/*.{ts,svelte}'],
         exclude: ['src/**/*.test.ts', 'src/main.ts', 'src/**/*.d.ts'],
         // Branch counts include the update paths Svelte compiles into every {#each} block.
-        thresholds: { lines: 95, functions: 95, branches: 85, statements: 95 },
+        thresholds: { lines: 100, functions: 100, branches: 85, statements: 100 },
       },
     },
   }),

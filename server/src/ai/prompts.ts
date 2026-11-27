@@ -15,8 +15,9 @@ const isUnsafe = (code: number): boolean =>
 
 /** Removes characters that could hide instructions or break out of the context block. */
 export const sanitize = (text: string): string =>
+  // Every stripped character is in the Basic Multilingual Plane, so one UTF-16 unit is enough.
   Array.from(text)
-    .filter((char) => !isUnsafe(char.codePointAt(0) ?? 0))
+    .filter((char) => !isUnsafe(char.charCodeAt(0)))
     .join('');
 
 const GROUND_RULES = `Use only the numbers, times and facts inside <context>; never invent readings.

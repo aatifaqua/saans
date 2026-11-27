@@ -18,6 +18,13 @@ describe('clientKey', () => {
     expect(await keyFor(true, { 'x-forwarded-for': 'spoofed, 2.2.2.2' })).toBe('2.2.2.2');
   });
 
+  it('groups clients with no known address under one key', async () => {
+    const app = new Hono();
+    const keyOf = clientKey(false, () => undefined);
+    app.get('/', (c) => c.text(keyOf(c)));
+    expect(await (await app.request('/')).text()).toBe('unknown');
+  });
+
   it('uses the socket when the trusted header is missing', async () => {
     expect(await keyFor(true, {})).toBe('10.0.0.1');
   });

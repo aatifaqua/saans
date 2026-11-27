@@ -55,7 +55,8 @@ describe('health and headers', () => {
   });
 
   it('accepts only same-site JSON posts to the API', async () => {
-    const app = createApp(deps());
+    const generate = fakeGenerate([JSON.stringify(PLAN), JSON.stringify(PLAN)]);
+    const app = createApp(deps({ generate }));
     const body = JSON.stringify({ household: HOUSEHOLD, place: PLACE });
     const text = await app.request('/api/plan', {
       method: 'POST',
@@ -63,6 +64,18 @@ describe('health and headers', () => {
       body,
     });
     expect(text.status).toBe(415);
+    // Bytes, unlike a string, carry no automatic content type.
+    const untyped = await app.request('/api/plan', {
+      method: 'POST',
+      body: new TextEncoder().encode(body),
+    });
+    expect(untyped.status).toBe(415);
+    const direct = await app.request('/api/plan', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json', 'sec-fetch-site': 'none' },
+      body,
+    });
+    expect(direct.status).toBe(200);
     const crossSite = await app.request('/api/plan', {
       method: 'POST',
       headers: { 'content-type': 'application/json', 'sec-fetch-site': 'cross-site' },

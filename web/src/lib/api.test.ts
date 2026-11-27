@@ -64,6 +64,14 @@ describe('api', () => {
     await expect(searchPlaces('Delhi')).rejects.toBeInstanceOf(ApiError);
   });
 
+  it('uses a plain message when an error page is not JSON', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(() => Promise.resolve(new Response('<h1>Bad gateway</h1>', { status: 502 }))),
+    );
+    await expect(getAir(PLACE)).rejects.toEqual(new ApiError('Something went wrong.', 502));
+  });
+
   it('reports a network failure and an unexpected body plainly', async () => {
     vi.stubGlobal(
       'fetch',

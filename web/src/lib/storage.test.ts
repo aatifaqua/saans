@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { DEFAULT_HOUSEHOLD, loadSaved, save } from './storage.ts';
+import { browserStorage, DEFAULT_HOUSEHOLD, loadSaved, save } from './storage.ts';
 
 function memory(initial: Record<string, string> = {}): Storage {
   const data = new Map(Object.entries(initial));
@@ -63,6 +63,21 @@ describe('storage', () => {
         place: null,
       },
     );
+  });
+
+  it('reports no storage when the browser blocks it', () => {
+    const original = Object.getOwnPropertyDescriptor(window, 'localStorage');
+    Object.defineProperty(window, 'localStorage', {
+      configurable: true,
+      get: () => {
+        throw new Error('SecurityError');
+      },
+    });
+    try {
+      expect(browserStorage()).toBeNull();
+    } finally {
+      if (original !== undefined) Object.defineProperty(window, 'localStorage', original);
+    }
   });
 
   it('works when storage is unavailable', () => {
