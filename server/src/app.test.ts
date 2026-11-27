@@ -13,7 +13,7 @@ import {
   HOUSEHOLD,
   PLACE,
   PLAN,
-} from './testing.ts';
+} from '../test/doubles.ts';
 
 const post = (body: unknown): RequestInit => ({
   method: 'POST',
@@ -27,7 +27,7 @@ describe('health and headers', () => {
     expect(await res.json()).toEqual({ status: 'ok', ai: true });
   });
 
-  it('reports AI off when no key is configured', async () => {
+  it('reports that live AI is not configured when no key is set', async () => {
     const res = await createApp(deps({ generate: null })).request('/api/health');
     expect(await res.json()).toEqual({ status: 'ok', ai: false });
   });

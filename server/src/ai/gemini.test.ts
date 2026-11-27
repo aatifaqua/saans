@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { apiError, fakeGenerate } from '../testing.ts';
+import { apiError, fakeGenerate } from '../../test/doubles.ts';
 import { createGemini, GeminiUnavailableError, type GenerateFn } from './gemini.ts';
 
 const TIMINGS = { callTimeoutMs: 50, deadlineMs: 200 };

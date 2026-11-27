@@ -61,7 +61,7 @@ describe('outlook', () => {
     expect(outlook(night, ADULT, '2026-11-22T22:00').best).toEqual([]);
   });
 
-  it('falls back to the single least bad waking hour when nothing is clean enough', () => {
+  it('offers the single least bad waking hour when nothing is clean enough', () => {
     const smog = Array<number>(24).fill(severe);
     smog[10] = veryPoor;
     const result = outlook(series(MORNING, smog), ADULT, MORNING);

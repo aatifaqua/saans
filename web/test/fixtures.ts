@@ -17,14 +17,20 @@ export const PLAN: Plan = {
     { time: '13:00', action: 'Indoor play after lunch', why: 'Air is Very Poor' },
     { time: '19:00', action: 'Purifier on in the bedroom', why: 'Evening peak' },
   ],
-  lowEmission: [
-    { tip: 'Combine errands', why: 'Fewer trips' },
-    { tip: 'No idling at the gate', why: 'Less exhaust' },
+  alternatives: [
+    { choice: 'Metro instead of the car', impact: 'Less exhaust from your trip' },
+    { choice: 'No idling at the gate', impact: 'Cleaner air where children wait' },
   ],
   hacks: [
-    { id: 'sealGaps', how: 'Towel at the balcony door' },
-    { id: 'wetMop', how: 'Mop tonight' },
-    { id: 'noBurning', how: 'Electric heater only' },
+    { id: 'sealGaps', how: 'Towel at the balcony door', impact: 'Less smoke seeps in' },
+    { id: 'wetMop', how: 'Mop tonight', impact: 'Dust stays down' },
+    { id: 'noBurning', how: 'Electric heater only', impact: 'No smoke added' },
+  ],
+  community: [
+    {
+      action: 'Start a no-idling pledge at the school gate',
+      impact: 'Cleaner air for every child',
+    },
   ],
 };
 

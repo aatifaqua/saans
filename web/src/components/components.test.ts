@@ -1,7 +1,7 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/svelte';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { axe } from 'vitest-axe';
-import { DAY, HOUSEHOLD, PLACE, PLAN } from '../test-fixtures.ts';
+import { DAY, HOUSEHOLD, PLACE, PLAN } from '../../test/fixtures.ts';
 import AirNow from './AirNow.svelte';
 import AskBox from './AskBox.svelte';
 import ForecastStrip from './ForecastStrip.svelte';
@@ -39,6 +39,11 @@ describe('HouseholdForm', () => {
     await fireEvent.click(screen.getByLabelText('We have an air purifier'));
     expect(onchange).toHaveBeenLastCalledWith({ ...HOUSEHOLD, hasPurifier: true });
     expect(await axe(container)).toHaveNoViolations();
+  });
+
+  it('describes the allowed range of every count field', () => {
+    render(HouseholdForm, { household: HOUSEHOLD, onchange: vi.fn() });
+    expect(screen.getByLabelText('Adults')).toHaveAccessibleDescription('0 to 12');
   });
 
   it('reports outdoor exercise and treats a cleared count as zero', async () => {
@@ -84,6 +89,7 @@ describe('PlaceSearch', () => {
     const { container } = render(PlaceSearch, { place: null, onselect });
     await fireEvent.input(screen.getByLabelText('City or town'), { target: { value: 'Luck' } });
     await fireEvent.submit(screen.getByRole('search'));
+    expect(await screen.findByText('1 place found.')).toBeInTheDocument();
     await fireEvent.click(await screen.findByRole('button', { name: /Lucknow, Uttar Pradesh/ }));
     expect(onselect).toHaveBeenCalledWith({ name: 'Lucknow', lat: 26.85, lon: 80.95 });
     expect(document.activeElement).toBe(screen.getByRole('heading', { name: 'Where you live' }));
@@ -144,6 +150,8 @@ describe('AirNow edge cases', () => {
 describe('AirNow and ForecastStrip', () => {
   it('names the band in words and states the household limit', async () => {
     const { container } = render(AirNow, { day: DAY, place: PLACE });
+    expect(screen.getByText(/Computed from the live Open-Meteo forecast/)).toBeInTheDocument();
+    expect(screen.queryByText(/Keep windows shut/)).not.toBeInTheDocument();
     expect(screen.getByText('350')).toBeInTheDocument();
     expect(screen.getAllByText('Very Poor').length).toBeGreaterThan(0);
     expect(screen.getByText(/outdoor limit/i)).toHaveTextContent('Satisfactory');
@@ -168,6 +176,17 @@ describe('PlanPanel and AskBox', () => {
     expect(await screen.findByText('Quick school drop by car')).toBeInTheDocument();
     expect(screen.getByText(/Close windows during the worst hours/)).toBeInTheDocument();
     expect(screen.getByText(/gemini-3.6-flash/)).toBeInTheDocument();
+    expect(screen.getByText("Today's plan is ready.")).toBeInTheDocument();
+    for (const heading of [
+      'Low-emission routine',
+      'Sustainable alternatives',
+      'Indoor air quality hacks',
+      'For your community',
+    ]) {
+      expect(screen.getByRole('heading', { name: heading })).toBeInTheDocument();
+    }
+    expect(screen.getByText('Metro instead of the car')).toBeInTheDocument();
+    expect(screen.getByText('Impact: Cleaner air for every child')).toBeInTheDocument();
     expect(await axe(container)).toHaveNoViolations();
 
     answer({ answer: 'Yes, between 2 and 5 PM with a mask.', model: 'm', disclaimer: 'd' });
@@ -177,6 +196,7 @@ describe('PlanPanel and AskBox', () => {
     await fireEvent.submit(screen.getByRole('form', { name: 'Follow-up question' }));
     const shown = await screen.findByText('Yes, between 2 and 5 PM with a mask.');
     expect(shown.closest('[aria-live]')).toHaveTextContent('not medical advice');
+    expect(await axe(container)).toHaveNoViolations();
 
     answer({ plan: PLAN, model: 'gemini-3.6-flash', disclaimer: 'd' });
     await fireEvent.click(screen.getByRole('button', { name: 'Make a fresh plan' }));
@@ -187,9 +207,10 @@ describe('PlanPanel and AskBox', () => {
 
   it('offers a retry and shows no plan when the AI is unavailable', async () => {
     answer({ error: 'The AI assistant is unavailable right now. Please retry.' }, 503);
-    render(PlanPanel, { household: HOUSEHOLD, place: PLACE });
+    const { container } = render(PlanPanel, { household: HOUSEHOLD, place: PLACE });
     await fireEvent.click(screen.getByRole('button', { name: "Make today's plan" }));
     expect(await screen.findByRole('button', { name: 'Retry' })).toBeInTheDocument();
+    expect(await axe(container)).toHaveNoViolations();
     expect(screen.getByRole('alert')).toHaveTextContent('unavailable');
     expect(screen.queryByText('Quick school drop by car')).not.toBeInTheDocument();
     answer({ plan: PLAN, model: 'm', disclaimer: 'd' });

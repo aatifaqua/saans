@@ -93,8 +93,11 @@ export interface Plan {
     readonly action: string;
     readonly why: string;
   }[];
-  readonly lowEmission: readonly { readonly tip: string; readonly why: string }[];
-  readonly hacks: readonly { readonly id: HackId; readonly how: string }[];
+  /** Sustainable swaps for this lifestyle, each with its direct impact. */
+  readonly alternatives: readonly { readonly choice: string; readonly impact: string }[];
+  readonly hacks: readonly { readonly id: HackId; readonly how: string; readonly impact: string }[];
+  /** Actions for the building, school or neighbourhood, each with its direct impact. */
+  readonly community: readonly { readonly action: string; readonly impact: string }[];
 }
 
 /** A place the forecast is fetched for; `name` is what the user sees and the model is told. */

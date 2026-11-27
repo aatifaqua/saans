@@ -1,9 +1,9 @@
 import type { GenerateContentParameters } from '@google/genai';
 import type { Household, Plan } from '@saans/core';
-import type { GenerateFn } from './ai/gemini.ts';
-import type { AppDeps } from './app.ts';
-import type { Config } from './config.ts';
-import type { FetchFn } from './openMeteo.ts';
+import type { GenerateFn } from '../src/ai/gemini.ts';
+import type { AppDeps } from '../src/app.ts';
+import type { Config } from '../src/config.ts';
+import type { FetchFn } from '../src/openMeteo.ts';
 
 export const NOW = Date.parse('2026-11-22T00:30:00Z'); // 06:00 in India
 
@@ -33,14 +33,34 @@ export const PLAN: Plan = {
     { time: '12:00', action: 'Indoor play', why: 'Air is Very Poor' },
     { time: '18:00', action: 'Purifier on high in the bedroom', why: 'Evening peak' },
   ],
-  lowEmission: [
-    { tip: 'Combine errands into one trip', why: 'Less driving' },
-    { tip: 'No idling at the school gate', why: 'Cuts exhaust where children wait' },
+  alternatives: [
+    {
+      choice: 'Combine errands into one car trip',
+      impact: 'Fewer cold starts and less exhaust on your street',
+    },
+    {
+      choice: 'Switch off the engine at the school gate',
+      impact: 'Less exhaust where children wait',
+    },
   ],
   hacks: [
-    { id: 'sealGaps', how: 'Roll a towel at the balcony door' },
-    { id: 'wetMop', how: 'Mop the living room tonight' },
-    { id: 'noBurning', how: 'Use the electric heater' },
+    {
+      id: 'sealGaps',
+      how: 'Roll a towel at the balcony door',
+      impact: 'Less smoky air seeps in at night',
+    },
+    { id: 'wetMop', how: 'Mop the living room tonight', impact: 'Settled dust stays down' },
+    {
+      id: 'noBurning',
+      how: 'Use the electric heater',
+      impact: 'No smoke added indoors or outside',
+    },
+  ],
+  community: [
+    {
+      action: 'Ask the school to hold assembly indoors on Very Poor days',
+      impact: 'Every child avoids the morning peak',
+    },
   ],
 };
 

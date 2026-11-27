@@ -2,7 +2,7 @@ import { fireEvent, render, screen } from '@testing-library/svelte';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { axe } from 'vitest-axe';
 import App from './App.svelte';
-import { PLACE, PLAN, readings } from './test-fixtures.ts';
+import { PLACE, PLAN, readings } from '../test/fixtures.ts';
 
 beforeEach(() => {
   localStorage.clear();

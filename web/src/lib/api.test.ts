@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { ApiError, askQuestion, getAir, getPlan, searchPlaces } from './api.ts';
-import { HOUSEHOLD, PLACE, PLAN } from '../test-fixtures.ts';
+import { HOUSEHOLD, PLACE, PLAN } from '../../test/fixtures.ts';
 
 function answer(body: unknown, status = 200): void {
   vi.stubGlobal(
@@ -53,6 +53,8 @@ describe('api', () => {
 
   it('rejects a plan or answer that does not have the expected shape', async () => {
     answer({ plan: { ...PLAN, hacks: [{ id: 'notAHack', how: 'x' }] }, model: 'm' });
+    await expect(getPlan(HOUSEHOLD, PLACE)).rejects.toBeInstanceOf(ApiError);
+    answer({ plan: { ...PLAN, community: 'later' }, model: 'm' });
     await expect(getPlan(HOUSEHOLD, PLACE)).rejects.toBeInstanceOf(ApiError);
     answer({ plan: { ...PLAN, routine: 'soon' }, model: 'm' });
     await expect(getPlan(HOUSEHOLD, PLACE)).rejects.toBeInstanceOf(ApiError);

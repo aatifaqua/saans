@@ -18,7 +18,7 @@ describe('clientKey', () => {
     expect(await keyFor(true, { 'x-forwarded-for': 'spoofed, 2.2.2.2' })).toBe('2.2.2.2');
   });
 
-  it('falls back to the socket when the trusted header is missing', async () => {
+  it('uses the socket when the trusted header is missing', async () => {
     expect(await keyFor(true, {})).toBe('10.0.0.1');
   });
 });

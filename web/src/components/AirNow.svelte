@@ -44,7 +44,8 @@
   {#if day.worst}
     <p>
       Worst stretch: <strong>{formatHour(day.worst.start)} to {formatHour(day.worst.end)}</strong>,
-      {BAND_LABEL[day.worst.band]}. Keep windows shut then.
+      {BAND_LABEL[day.worst.band]}.
     </p>
   {/if}
+  <p class="muted">Computed from the live Open-Meteo forecast. Advice comes from Gemini below.</p>
 </section>

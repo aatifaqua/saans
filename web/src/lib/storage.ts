@@ -69,7 +69,7 @@ function parseJson(text: string): unknown {
   }
 }
 
-/** What was saved last time; anything missing, corrupt or from an older shape falls back to defaults. */
+/** What was saved last time; anything missing, corrupt or from an older shape is replaced by defaults. */
 export function loadSaved(storage: Storage | null): Saved {
   const parsed = parseJson(storage?.getItem(KEY) ?? 'null');
   const record = isRecord(parsed) ? parsed : {};

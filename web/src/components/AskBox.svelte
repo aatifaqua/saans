@@ -45,6 +45,7 @@
 {#if error}
   <p class="error" role="alert">{error}</p>
 {/if}
+<p class="visually-hidden" role="status">{busy ? 'Asking Gemini.' : ''}</p>
 <div aria-live="polite">
   {#if answer}
     <div class="answer">

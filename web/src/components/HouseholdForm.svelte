@@ -68,6 +68,7 @@
             type="number"
             min="0"
             max="12"
+            aria-describedby="count-hint"
             inputmode="numeric"
             value={household.members[field.key]}
             oninput={(event) => {
@@ -77,6 +78,7 @@
         </label>
       {/each}
     </div>
+    <p id="count-hint" class="hint">0 to 12</p>
   </fieldset>
 
   <fieldset>

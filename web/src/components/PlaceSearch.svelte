@@ -15,13 +15,16 @@
   let busy = $state(false);
   let heading = $state<HTMLHeadingElement>();
 
+  const found = (count: number): string =>
+    `${String(count)} ${count === 1 ? 'place' : 'places'} found.`;
+
   async function search(event: SubmitEvent): Promise<void> {
     event.preventDefault();
     busy = true;
     status = 'Searching';
     try {
       results = await searchPlaces(query.trim());
-      status = results.length === 0 ? 'No Indian city or town found.' : '';
+      status = results.length === 0 ? 'No Indian city or town found.' : found(results.length);
     } catch (error) {
       results = [];
       status = error instanceof ApiError ? error.message : 'Search failed. Please retry.';

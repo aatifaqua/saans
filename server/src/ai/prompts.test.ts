@@ -1,6 +1,6 @@
 import { DISCLAIMER } from '@saans/core';
 import { describe, expect, it } from 'vitest';
-import { PLAN } from '../testing.ts';
+import { PLAN } from '../../test/doubles.ts';
 import { ASK_SYSTEM, askPrompt, PLAN_SYSTEM, planPrompt, sanitize } from './prompts.ts';
 
 describe('sanitize', () => {
@@ -17,6 +17,12 @@ describe('prompts', () => {
       expect(system).toMatch(/not as boilerplate/i);
       expect(system).toMatch(/breathing trouble or chest pain.*seek medical care now/i);
     }
+  });
+
+  it('ask for sustainable alternatives, community actions and the direct impact of each choice', () => {
+    expect(PLAN_SYSTEM).toMatch(/sustainable alternatives/i);
+    expect(PLAN_SYSTEM).toMatch(/community/i);
+    expect(PLAN_SYSTEM).toMatch(/direct impact/i);
   });
 
   it('wrap the context so user text cannot close the block', () => {

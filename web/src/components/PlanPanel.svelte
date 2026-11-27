@@ -43,11 +43,14 @@
     </div>
   {/if}
 
+  <p class="visually-hidden" role="status">
+    {busy ? 'Writing your plan.' : result ? "Today's plan is ready." : ''}
+  </p>
   <div aria-live="polite">
     {#if result}
       <p class="summary">{result.plan.summary}</p>
 
-      <h3>Routine</h3>
+      <h3>Low-emission routine</h3>
       <ol class="routine">
         {#each result.plan.routine as step, index (index)}
           <li>
@@ -58,21 +61,32 @@
         {/each}
       </ol>
 
-      <h3>Cut your own emissions</h3>
+      <h3>Sustainable alternatives</h3>
       <ul class="tips">
-        {#each result.plan.lowEmission as tip, index (index)}
-          <li><span>{tip.tip}</span> <span class="why">Why: {tip.why}</span></li>
+        {#each result.plan.alternatives as alternative, index (index)}
+          <li>
+            <span>{alternative.choice}</span>
+            <span class="why">Impact: {alternative.impact}</span>
+          </li>
         {/each}
       </ul>
 
-      <h3>Indoor air hacks</h3>
+      <h3>Indoor air quality hacks</h3>
       <ul class="hacks">
         {#each result.plan.hacks as hack (hack.id)}
           <li>
             <strong>{HACKS[hack.id].title}</strong>
             <span>{hack.how}</span>
+            <span class="why">Impact: {hack.impact}</span>
             <span class="why">Basis: {HACKS[hack.id].source}</span>
           </li>
+        {/each}
+      </ul>
+
+      <h3>For your community</h3>
+      <ul class="tips">
+        {#each result.plan.community as step, index (index)}
+          <li><span>{step.action}</span> <span class="why">Impact: {step.impact}</span></li>
         {/each}
       </ul>
 

@@ -29,14 +29,18 @@ export const PlanSchema: z.ZodType<Plan> = z.strictObject({
     .array(z.strictObject({ time: z.string().trim().min(1).max(40), action: line, why: line }))
     .min(3)
     .max(8),
-  lowEmission: z
-    .array(z.strictObject({ tip: line, why: line }))
+  alternatives: z
+    .array(z.strictObject({ choice: line, impact: line }))
     .min(2)
     .max(5),
   hacks: z
-    .array(z.strictObject({ id: z.enum(HACK_IDS), how: line }))
+    .array(z.strictObject({ id: z.enum(HACK_IDS), how: line, impact: line }))
     .min(3)
     .max(5),
+  community: z
+    .array(z.strictObject({ action: line, impact: line }))
+    .min(1)
+    .max(3),
 });
 
 export const PlanRequestSchema = z.strictObject({ household: HouseholdSchema, place: PlaceSchema });

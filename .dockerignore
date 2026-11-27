@@ -11,4 +11,5 @@ docs
 # Tests and their fixtures never run in the image.
 **/*.test.ts
 **/test-fixtures.ts
-server/src/testing.ts
+server/test
+web/test

@@ -32,8 +32,9 @@ function isPlan(value: unknown): value is Plan {
     isRecord(value) &&
     isText(value.summary) &&
     allHaveText(value.routine, ['time', 'action', 'why']) &&
-    allHaveText(value.lowEmission, ['tip', 'why']) &&
-    allHaveText(value.hacks, ['id', 'how']) &&
+    allHaveText(value.alternatives, ['choice', 'impact']) &&
+    allHaveText(value.hacks, ['id', 'how', 'impact']) &&
+    allHaveText(value.community, ['action', 'impact']) &&
     Array.isArray(value.hacks) &&
     value.hacks.every((hack) => isRecord(hack) && HACK_IDS.some((id) => id === hack.id))
   );

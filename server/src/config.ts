@@ -29,7 +29,7 @@ const present = (value: string | undefined): string | undefined => {
 
 /**
  * Builds the config and fails fast on anything that would make the deployed app misbehave. In
- * production a missing key is an error rather than a quiet "AI off" mode.
+ * production a missing key is a start-up error, so the app never runs without live AI.
  */
 export function loadConfig(env: Readonly<Record<string, string | undefined>>): Config {
   const geminiApiKey = present(env.GEMINI_API_KEY);

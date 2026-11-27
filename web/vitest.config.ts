@@ -11,10 +11,12 @@ export default defineConfig(
       setupFiles: ['./vitest.setup.ts'],
       include: ['src/**/*.test.ts'],
       testTimeout: 20_000,
+      // The contrast test reads the real stylesheet, so CSS is processed in tests too.
+      css: { include: [/app\.css/] },
       coverage: {
         provider: 'v8',
         include: ['src/**/*.{ts,svelte}'],
-        exclude: ['src/**/*.test.ts', 'src/test-fixtures.ts', 'src/main.ts', 'src/**/*.d.ts'],
+        exclude: ['src/**/*.test.ts', 'src/main.ts', 'src/**/*.d.ts'],
         // Branch counts include the update paths Svelte compiles into every {#each} block.
         thresholds: { lines: 95, functions: 95, branches: 85, statements: 95 },
       },

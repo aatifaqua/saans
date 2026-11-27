@@ -14,12 +14,13 @@
   --focus: #1f5fbf;
   --warn-bg: #fbeee9;
   --warn-ink: #8a2b17;
-  --good: #3f8f4f;
-  --satisfactory: #8aa83a;
-  --moderate: #d4a21c;
-  --poor: #dd7a2c;
-  --very-poor: #c2412d;
-  --severe: #7e2a3a;
+  /* Band colours are mid-tones with at least 3:1 against the card in both themes (checked in tests). */
+  --good: #3c8a4b;
+  --satisfactory: #6f8a1f;
+  --moderate: #a87c00;
+  --poor: #c4621a;
+  --very-poor: #d64a33;
+  --severe: #bd5379;
   --radius: 14px;
   font-family:
     system-ui,
@@ -266,8 +267,23 @@ button.link {
   min-width: 0;
 }
 
+/* Kept in the page when empty, so screen readers keep listening to the live region. */
 .status:empty {
-  display: none;
+  margin: 0;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.hint {
+  font-size: 0.85rem;
+  color: var(--muted);
 }
 
 .results {
@@ -347,6 +363,11 @@ button.link {
 .routine {
   padding-left: 1.25rem;
   margin: 0;
+}
+
+.tips li {
+  display: grid;
+  gap: 0.15rem;
 }
 
 .windows li,
@@ -456,6 +477,26 @@ td {
   border-radius: 10px;
   padding: 0.75rem 1rem;
   margin-top: 0.75rem;
+}
+
+/* Windows high contrast mode drops background colours, so bars and the band edge use system colours. */
+@media (forced-colors: active) {
+  .bar,
+  .now {
+    forced-color-adjust: none;
+  }
+
+  .bar {
+    background: CanvasText;
+  }
+
+  .bar.best {
+    background: Highlight;
+  }
+
+  .now {
+    border-left-color: CanvasText;
+  }
 }
 
 @media (prefers-reduced-motion: no-preference) {
