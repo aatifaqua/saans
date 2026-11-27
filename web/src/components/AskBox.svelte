@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { Household, Place, Plan } from '@saans/core';
+  import { DISCLAIMER, type Household, type Place, type Plan } from '@saans/core';
   import { ApiError, askQuestion } from '../lib/api.ts';
 
   interface Props {
@@ -47,6 +47,9 @@
 {/if}
 <div aria-live="polite">
   {#if answer}
-    <p class="answer">{answer}</p>
+    <div class="answer">
+      <p>{answer}</p>
+      <p class="credit muted">{DISCLAIMER}</p>
+    </div>
   {/if}
 </div>

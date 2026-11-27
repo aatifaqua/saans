@@ -77,7 +77,10 @@
       </ul>
 
       <p class="credit muted">Written live by Google Gemini ({result.model}). {DISCLAIMER}</p>
-      <AskBox {household} {place} plan={result.plan} />
+      <!-- A fresh plan starts a fresh conversation, so an old answer never sits under it. -->
+      {#key result}
+        <AskBox {household} {place} plan={result.plan} />
+      {/key}
     {/if}
   </div>
 </section>

@@ -14,7 +14,8 @@ describe('prompts', () => {
     for (const system of [PLAN_SYSTEM, ASK_SYSTEM]) {
       expect(system).toContain(DISCLAIMER);
       expect(system).toMatch(/only the numbers/i);
-      expect(system).toMatch(/do not repeat it/i);
+      expect(system).toMatch(/not as boilerplate/i);
+      expect(system).toMatch(/breathing trouble or chest pain.*seek medical care now/i);
     }
   });
 

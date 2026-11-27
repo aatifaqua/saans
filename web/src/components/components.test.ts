@@ -175,8 +175,14 @@ describe('PlanPanel and AskBox', () => {
       target: { value: 'Can we go to the park?' },
     });
     await fireEvent.submit(screen.getByRole('form', { name: 'Follow-up question' }));
-    expect(await screen.findByText('Yes, between 2 and 5 PM with a mask.')).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Make a fresh plan' })).toBeInTheDocument();
+    const shown = await screen.findByText('Yes, between 2 and 5 PM with a mask.');
+    expect(shown.closest('[aria-live]')).toHaveTextContent('not medical advice');
+
+    answer({ plan: PLAN, model: 'gemini-3.6-flash', disclaimer: 'd' });
+    await fireEvent.click(screen.getByRole('button', { name: 'Make a fresh plan' }));
+    await waitFor(() => {
+      expect(screen.queryByText('Yes, between 2 and 5 PM with a mask.')).not.toBeInTheDocument();
+    });
   });
 
   it('offers a retry and shows no plan when the AI is unavailable', async () => {
