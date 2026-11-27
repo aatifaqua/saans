@@ -48,6 +48,7 @@ export interface HourReading {
   readonly pm10: number | null;
 }
 
+/** One forecast hour scored on the National AQI. */
 export interface HourAqi {
   readonly time: string;
   readonly aqi: number;

@@ -5,6 +5,7 @@ import type { z } from 'zod';
 import { GeminiUnavailableError } from './ai/gemini.ts';
 import { UpstreamError } from './openMeteo.ts';
 
+/** A 400 with a short message the user can act on. */
 export const invalid = (message: string): HTTPException => new HTTPException(400, { message });
 
 /** Parses the JSON body against `schema`; anything malformed or unexpected is a 400. */

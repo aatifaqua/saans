@@ -12,6 +12,7 @@ export type GenerateFn = (params: GenerateContentParameters) => Promise<{
   readonly candidates?: readonly { readonly finishReason?: string | undefined }[] | undefined;
 }>;
 
+/** What one call to Gemini needs: the system prompt, the user prompt and its limits. */
 export interface GenerateRequest {
   readonly system: string;
   readonly prompt: string;
@@ -21,6 +22,7 @@ export interface GenerateRequest {
   readonly json?: object;
 }
 
+/** The model chain and its two time limits. */
 export interface GeminiOptions {
   readonly models: readonly string[];
   readonly callTimeoutMs: number;
@@ -99,4 +101,5 @@ export function createGemini(generate: GenerateFn, options: GeminiOptions) {
   };
 }
 
+/** The chain-running client the routes use. */
 export type Gemini = ReturnType<typeof createGemini>;

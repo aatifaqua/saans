@@ -16,6 +16,7 @@ const budgets = {
 
 export default defineConfig(
   { ignores: ['**/node_modules/**', '**/dist/**', '**/coverage/**'] },
+  { linterOptions: { reportUnusedDisableDirectives: 'error' } },
   js.configs.recommended,
   tseslint.configs.strictTypeChecked,
   tseslint.configs.stylisticTypeChecked,
@@ -24,7 +25,7 @@ export default defineConfig(
   {
     languageOptions: {
       parserOptions: {
-        projectService: { allowDefaultProject: ['*.js', '*.ts'] },
+        projectService: { allowDefaultProject: ['*.js', '*.ts', 'web/*.js'] },
         tsconfigRootDir: import.meta.dirname,
         extraFileExtensions: ['.svelte'],
       },
@@ -36,9 +37,18 @@ export default defineConfig(
       'no-duplicate-imports': 'error',
       // Generated text must only ever reach the page as escaped text nodes.
       'svelte/no-at-html-tags': 'error',
+      // Logging goes through the one error handler and the start-up line, never ad hoc.
+      'no-console': 'error',
     },
   },
-  { files: ['eslint.config.js'], extends: [tseslint.configs.disableTypeChecked] },
+  {
+    files: ['eslint.config.js', 'web/size-budget.js'],
+    extends: [tseslint.configs.disableTypeChecked],
+  },
+  {
+    files: ['server/src/index.ts', 'server/src/errors.ts', 'web/size-budget.js'],
+    rules: { 'no-console': 'off' },
+  },
   {
     files: ['**/*.svelte', '**/*.svelte.ts'],
     languageOptions: { parserOptions: { parser: tseslint.parser } },

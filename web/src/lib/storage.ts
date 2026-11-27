@@ -11,6 +11,7 @@ import {
 /** The profile lives only in this browser; it is sent to the server per request, never stored there. */
 const KEY = 'saans';
 
+/** Two adults who use public transport: the starting profile. */
 export const DEFAULT_HOUSEHOLD: Household = {
   members: { child: 0, adult: 2, olderAdult: 0, pregnant: 0 },
   sensitivities: [],
@@ -19,11 +20,13 @@ export const DEFAULT_HOUSEHOLD: Household = {
   hasPurifier: false,
 };
 
+/** What this browser remembers between visits. */
 export interface Saved {
   readonly household: Household;
   readonly place: Place | null;
 }
 
+/** True for a plain object, the first check before reading any field. */
 export const isRecord = (value: unknown): value is Record<string, unknown> =>
   typeof value === 'object' && value !== null;
 const isCount = (value: unknown): value is number =>
@@ -46,6 +49,7 @@ function isHousehold(value: unknown): value is Household {
   );
 }
 
+/** True for a value shaped like a Place. */
 export const isPlace = (value: unknown): value is Place =>
   isRecord(value) &&
   typeof value.name === 'string' &&

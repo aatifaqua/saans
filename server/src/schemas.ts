@@ -14,6 +14,7 @@ export const HouseholdSchema = z.strictObject({
   hasPurifier: z.boolean(),
 });
 
+/** A place as the client sends it: a display name and coordinates. */
 export const PlaceSchema = z.strictObject({
   name: z.string().trim().min(1).max(80),
   lat: z.number().min(-90).max(90),
@@ -43,8 +44,10 @@ export const PlanSchema: z.ZodType<Plan> = z.strictObject({
     .max(3),
 });
 
+/** Body of POST /api/plan. */
 export const PlanRequestSchema = z.strictObject({ household: HouseholdSchema, place: PlaceSchema });
 
+/** Body of POST /api/ask: the plan on screen comes back so the answer can refer to it. */
 export const AskRequestSchema = z.strictObject({
   household: HouseholdSchema,
   place: PlaceSchema,

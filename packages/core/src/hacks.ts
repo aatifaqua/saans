@@ -2,6 +2,7 @@ import { bandRank } from './aqi.ts';
 import { isVulnerable } from './household.ts';
 import { HACK_IDS, type DayOutlook, type HackId, type Household } from './types.ts';
 
+/** One indoor air hack in the catalogue, with the source it rests on. */
 export interface Hack {
   readonly title: string;
   readonly source: string;

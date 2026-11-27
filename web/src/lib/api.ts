@@ -12,11 +12,13 @@ export class ApiError extends Error {
   }
 }
 
+/** The forecast as /api/air returns it. */
 export interface Air {
   readonly utcOffsetSeconds: number;
   readonly readings: readonly HourReading[];
 }
 
+/** A search result, with its state shown to tell same-named places apart. */
 export type ListedPlace = Place & { readonly region: string };
 
 const isText = (value: unknown): value is string => typeof value === 'string';
@@ -72,12 +74,14 @@ function unexpected(): ApiError {
   return new ApiError('The server sent an unexpected answer. Please retry.', 200);
 }
 
+/** Indian places matching the query. */
 export async function searchPlaces(query: string): Promise<readonly ListedPlace[]> {
   const { places } = await call(`/api/places?q=${encodeURIComponent(query)}`);
   if (!Array.isArray(places)) throw unexpected();
   return places.filter(isListedPlace);
 }
 
+/** The live hourly forecast for a place. */
 export async function getAir(place: Place): Promise<Air> {
   const data = await call(`/api/air?lat=${String(place.lat)}&lon=${String(place.lon)}`);
   const { utcOffsetSeconds, readings } = data;
@@ -85,6 +89,7 @@ export async function getAir(place: Place): Promise<Air> {
   return { utcOffsetSeconds, readings };
 }
 
+/** Today's plan, written live by Gemini for this household and place. */
 export async function getPlan(
   household: Household,
   place: Place,
@@ -94,6 +99,7 @@ export async function getPlan(
   return { plan, model };
 }
 
+/** A live Gemini answer to a question about the plan on screen. */
 export async function askQuestion(
   household: Household,
   place: Place,

@@ -28,6 +28,7 @@ const MAX_BODY_BYTES = 16 * 1024;
  */
 const TIMINGS: Omit<GeminiOptions, 'models'> = { callTimeoutMs: 15_000, deadlineMs: 55_000 };
 
+/** Builds the app: security and rate-limit middleware, the API routes and, when configured, the web app. */
 export function createApp(deps: AppDeps): Hono {
   const { config } = deps;
   const { now } = deps;

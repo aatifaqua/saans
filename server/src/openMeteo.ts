@@ -2,8 +2,10 @@ import { round2, type HourReading } from '@saans/core';
 import { z } from 'zod';
 import { createCache } from './cache.ts';
 
+/** The platform fetch, injected so tests never reach Open-Meteo. */
 export type FetchFn = (url: string, init?: RequestInit) => Promise<Response>;
 
+/** A geocoding match: the display name, its state and rounded coordinates. */
 export interface Place {
   readonly name: string;
   readonly region: string;
@@ -11,6 +13,7 @@ export interface Place {
   readonly lon: number;
 }
 
+/** Hourly readings in local time, with the offset needed to find the current hour. */
 export interface AirData {
   readonly utcOffsetSeconds: number;
   readonly readings: readonly HourReading[];
@@ -119,4 +122,5 @@ export function createAirSource(fetchFn: FetchFn, now: () => number) {
   };
 }
 
+/** The cached place search and forecast lookups the routes share. */
 export type AirSource = ReturnType<typeof createAirSource>;

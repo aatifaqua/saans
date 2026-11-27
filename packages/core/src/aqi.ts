@@ -59,6 +59,7 @@ export function naqi(pm25: number | null, pm10: number | null): number | null {
   return Math.round(Math.max(fine, coarse));
 }
 
+/** The National AQI band an index value falls in, from Good to Severe. */
 export function bandOf(aqi: number): Band {
   for (const [top, band] of BAND_TOPS) if (aqi <= top) return band;
   return 'severe';

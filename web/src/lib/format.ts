@@ -1,5 +1,6 @@
 import type { Band } from '@saans/core';
 
+/** The band names users see, so colour is never the only signal. */
 export const BAND_LABEL: Readonly<Record<Band, string>> = {
   good: 'Good',
   satisfactory: 'Satisfactory',
