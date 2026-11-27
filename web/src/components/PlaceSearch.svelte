@@ -1,6 +1,7 @@
 <script lang="ts">
   import { round2, type ListedPlace, type Place } from '@saans/core';
   import { ApiError, searchPlaces } from '../lib/api.ts';
+  import { formatCoordinates } from '../lib/format.ts';
 
   interface Props {
     place: Place | null;
@@ -47,7 +48,8 @@
       (position) => {
         status = '';
         const { latitude, longitude } = position.coords;
-        onselect({ name: 'Your location', lat: round2(latitude), lon: round2(longitude) });
+        const [lat, lon] = [round2(latitude), round2(longitude)];
+        onselect({ name: `${formatCoordinates(lat, lon)} (your location)`, lat, lon });
       },
       () => {
         status = 'Location is off or unavailable. Search for your city instead.';

@@ -67,7 +67,11 @@ describe('PlaceSearch', () => {
     const onselect = vi.fn();
     render(PlaceSearch, { place: null, onselect });
     await fireEvent.click(screen.getByRole('button', { name: 'Use my location' }));
-    expect(onselect).toHaveBeenCalledWith({ name: 'Your location', lat: 28.61, lon: 77.21 });
+    expect(onselect).toHaveBeenCalledWith({
+      name: '28.61° N, 77.21° E (your location)',
+      lat: 28.61,
+      lon: 77.21,
+    });
   });
 
   it('explains when location is refused', async () => {

@@ -160,7 +160,7 @@ Secret Manager), assumptions, run locally, deploy, disclaimer.
   `timezone=auto`); the strip shows 48 hours, the routine covers 24. The smog-episode check uses
   the mean of those 24 hours.
 - **Region:** place search is limited to India (geocoding `countryCode=IN`). Device location is
-  allowed and shown as "Your location" with rounded coordinates.
+  allowed and shown by its rounded coordinates, e.g. "19.08° N, 72.88° E (your location)".
 - **Hosting:** one Cloud Run service with the Gemini key from Secret Manager; no static or offline build is deployed.
 
 ## 12. Left to the builder
