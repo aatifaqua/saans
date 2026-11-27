@@ -130,6 +130,7 @@ describe('GET /api/places', () => {
     await app.request('/api/places?q=%20delhi%20');
     expect(fetch.urls).toHaveLength(1);
     expect(fetch.urls[0]).toContain('countryCode=IN');
+    expect(res.headers.get('cache-control')).toBe('public, max-age=86400');
   });
 
   it('leaves the region blank when Open-Meteo has none', async () => {

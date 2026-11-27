@@ -12,6 +12,8 @@ const AirQuery = z.object({
 
 /** Forecasts change hourly, so browsers and Cloud Run's front end may reuse an answer briefly. */
 const AIR_CACHE_CONTROL = 'public, max-age=300';
+/** Place names and coordinates do not change, so a search result can be reused for a day. */
+const PLACES_CACHE_CONTROL = 'public, max-age=86400';
 
 /** Place search and the hourly forecast. Both are thin, cached proxies of Open-Meteo. */
 export function airRoutes(air: AirSource): Hono {
@@ -20,7 +22,9 @@ export function airRoutes(air: AirSource): Hono {
   app.get('/places', async (c) => {
     const query = PlacesQuery.safeParse(c.req.query());
     if (!query.success) throw invalid('Search for a city name of 2 to 60 characters.');
-    return c.json({ places: await air.places(query.data.q), disclaimer: DISCLAIMER });
+    const places = await air.places(query.data.q);
+    c.header('Cache-Control', PLACES_CACHE_CONTROL);
+    return c.json({ places, disclaimer: DISCLAIMER });
   });
 
   app.get('/air', async (c) => {
