@@ -1,5 +1,6 @@
 import {
   COMMUTES,
+  MAX_MEMBER_COUNT,
   MEMBERS,
   SENSITIVITIES,
   type Commute,
@@ -7,6 +8,7 @@ import {
   type Place,
   type Sensitivity,
 } from '@saans/core';
+import { isPlace, isRecord } from './guards.ts';
 
 /** The profile lives only in this browser; it is sent to the server per request, never stored there. */
 const KEY = 'saans';
@@ -26,11 +28,8 @@ export interface Saved {
   readonly place: Place | null;
 }
 
-/** True for a plain object, the first check before reading any field. */
-export const isRecord = (value: unknown): value is Record<string, unknown> =>
-  typeof value === 'object' && value !== null;
 const isCount = (value: unknown): value is number =>
-  typeof value === 'number' && Number.isInteger(value) && value >= 0 && value <= 12;
+  typeof value === 'number' && Number.isInteger(value) && value >= 0 && value <= MAX_MEMBER_COUNT;
 const isCommute = (value: unknown): value is Commute => COMMUTES.some((mode) => mode === value);
 const isSensitivity = (value: unknown): value is Sensitivity =>
   SENSITIVITIES.some((item) => item === value);
@@ -48,13 +47,6 @@ function isHousehold(value: unknown): value is Household {
     typeof value.hasPurifier === 'boolean'
   );
 }
-
-/** True for a value shaped like a Place. */
-export const isPlace = (value: unknown): value is Place =>
-  isRecord(value) &&
-  typeof value.name === 'string' &&
-  typeof value.lat === 'number' &&
-  typeof value.lon === 'number';
 
 /** Local storage, or null where the browser blocks it (private modes, strict settings). */
 export function browserStorage(): Storage | null {

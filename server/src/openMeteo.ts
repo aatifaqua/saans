@@ -1,17 +1,9 @@
-import { round2, type HourReading } from '@saans/core';
+import { round2, type HourReading, type ListedPlace } from '@saans/core';
 import { z } from 'zod';
 import { createCache } from './cache.ts';
 
 /** The platform fetch, injected so tests never reach Open-Meteo. */
 export type FetchFn = (url: string, init?: RequestInit) => Promise<Response>;
-
-/** A geocoding match: the display name, its state and rounded coordinates. */
-export interface Place {
-  readonly name: string;
-  readonly region: string;
-  readonly lat: number;
-  readonly lon: number;
-}
 
 /** Hourly readings in local time, with the offset needed to find the current hour. */
 export interface AirData {
@@ -70,14 +62,14 @@ function parse<T>(schema: z.ZodType<T>, body: unknown): T {
 
 /** Place search (India only) and hourly PM2.5 / PM10 forecasts, both cached. */
 export function createAirSource(fetchFn: FetchFn, now: () => number) {
-  const placeCache = createCache<readonly Place[]>({
+  const placeCache = createCache<readonly ListedPlace[]>({
     ttlMs: PLACE_TTL_MS,
     maxEntries: MAX_ENTRIES,
     now,
   });
   const airCache = createCache<AirData>({ ttlMs: AIR_TTL_MS, maxEntries: MAX_ENTRIES, now });
 
-  const loadPlaces = async (query: string): Promise<readonly Place[]> => {
+  const loadPlaces = async (query: string): Promise<readonly ListedPlace[]> => {
     const params = new URLSearchParams({
       name: query,
       count: '5',
@@ -111,7 +103,7 @@ export function createAirSource(fetchFn: FetchFn, now: () => number) {
   };
 
   return {
-    places(query: string): Promise<readonly Place[]> {
+    places(query: string): Promise<readonly ListedPlace[]> {
       const key = query.trim().toLowerCase();
       return placeCache.get(key, () => loadPlaces(key));
     },

@@ -1,6 +1,7 @@
 <script lang="ts">
   import {
     COMMUTES,
+    MAX_MEMBER_COUNT,
     type Commute,
     type Household,
     type Member,
@@ -35,11 +36,12 @@
     none: 'Mostly at home',
   };
 
-  /** Counts are clamped to 0 to 12, as the server expects, and the home always has one person. */
+  /** Counts are clamped to the range the server accepts, and the home always has one person. */
   function setCount(key: Member, raw: string): void {
     const { child, adult, olderAdult, pregnant } = household.members;
     const others = child + adult + olderAdult + pregnant - household.members[key];
-    const value = Math.min(12, Math.max(others === 0 ? 1 : 0, Math.trunc(Number(raw)) || 0));
+    const lowest = others === 0 ? 1 : 0;
+    const value = Math.min(MAX_MEMBER_COUNT, Math.max(lowest, Math.trunc(Number(raw)) || 0));
     onchange({ ...household, members: { ...household.members, [key]: value } });
   }
 
@@ -67,7 +69,7 @@
           <input
             type="number"
             min="0"
-            max="12"
+            max={MAX_MEMBER_COUNT}
             aria-describedby="count-hint"
             inputmode="numeric"
             value={household.members[field.key]}
@@ -78,7 +80,7 @@
         </label>
       {/each}
     </div>
-    <p id="count-hint" class="hint">0 to 12</p>
+    <p id="count-hint" class="hint">0 to {MAX_MEMBER_COUNT}</p>
   </fieldset>
 
   <fieldset>

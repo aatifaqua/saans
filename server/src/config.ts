@@ -15,6 +15,10 @@ export interface Config {
  * Fast models first: under heavy demand the larger flash models can stall for tens of seconds
  * while the lite models still answer in a few, and every answer is schema-checked either way.
  */
+/** Requests per client per minute, overall and on the two Gemini routes. */
+const REQUESTS_PER_MINUTE = 60;
+const AI_REQUESTS_PER_MINUTE = 10;
+
 const DEFAULT_MODELS = [
   'gemini-3.5-flash-lite',
   'gemini-3.1-flash-lite',
@@ -49,6 +53,6 @@ export function loadConfig(env: Readonly<Record<string, string | undefined>>): C
     port,
     staticDir: present(env.STATIC_DIR),
     trustProxy: env.TRUST_PROXY === '1',
-    rateLimit: { perMinute: 60, aiPerMinute: 10 },
+    rateLimit: { perMinute: REQUESTS_PER_MINUTE, aiPerMinute: AI_REQUESTS_PER_MINUTE },
   };
 }

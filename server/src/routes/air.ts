@@ -1,7 +1,7 @@
 import { DISCLAIMER } from '@saans/core';
 import { Hono } from 'hono';
 import { z } from 'zod';
-import { invalid } from '../errors.ts';
+import { invalid } from '../request.ts';
 import type { AirSource } from '../openMeteo.ts';
 
 const PlacesQuery = z.object({ q: z.string().trim().min(2).max(60) });

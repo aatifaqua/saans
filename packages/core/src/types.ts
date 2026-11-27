@@ -2,6 +2,9 @@
 export const BANDS = ['good', 'satisfactory', 'moderate', 'poor', 'veryPoor', 'severe'] as const;
 export type Band = (typeof BANDS)[number];
 
+/** The most people of one kind a household may list; the form, storage and API all use it. */
+export const MAX_MEMBER_COUNT = 12;
+
 /** Who lives in the home; each group changes how cautious the routine must be. */
 export const MEMBERS = ['child', 'adult', 'olderAdult', 'pregnant'] as const;
 export type Member = (typeof MEMBERS)[number];
@@ -106,6 +109,11 @@ export interface Place {
   readonly name: string;
   readonly lat: number;
   readonly lon: number;
+}
+
+/** A place search result: the place plus its state, to tell same-named places apart. */
+export interface ListedPlace extends Place {
+  readonly region: string;
 }
 
 /** Shown on every surface that gives advice: the UI, API responses, prompts and errors. */

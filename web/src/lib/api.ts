@@ -1,5 +1,12 @@
-import { HACK_IDS, type HourReading, type Household, type Place, type Plan } from '@saans/core';
-import { isPlace, isRecord } from './storage.ts';
+import {
+  HACK_IDS,
+  type HourReading,
+  type Household,
+  type ListedPlace,
+  type Place,
+  type Plan,
+} from '@saans/core';
+import { isPlace, isReading, isRecord, isText } from './guards.ts';
 
 /** A failed call, with the server's own short message; status 0 means the network failed. */
 export class ApiError extends Error {
@@ -17,11 +24,6 @@ export interface Air {
   readonly utcOffsetSeconds: number;
   readonly readings: readonly HourReading[];
 }
-
-/** A search result, with its state shown to tell same-named places apart. */
-export type ListedPlace = Place & { readonly region: string };
-
-const isText = (value: unknown): value is string => typeof value === 'string';
 
 /** Every item is an object whose `keys` are all strings. */
 const allHaveText = (value: unknown, keys: readonly string[]): boolean =>
@@ -86,7 +88,8 @@ export async function getAir(place: Place): Promise<Air> {
   const data = await call(`/api/air?lat=${String(place.lat)}&lon=${String(place.lon)}`);
   const { utcOffsetSeconds, readings } = data;
   if (typeof utcOffsetSeconds !== 'number' || !Array.isArray(readings)) throw unexpected();
-  return { utcOffsetSeconds, readings };
+  // Only well-formed hours reach the forecast maths.
+  return { utcOffsetSeconds, readings: readings.filter(isReading) };
 }
 
 /** Today's plan, written live by Gemini for this household and place. */

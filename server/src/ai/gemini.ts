@@ -27,6 +27,16 @@ export interface GeminiOptions {
   readonly models: readonly string[];
   readonly callTimeoutMs: number;
   readonly deadlineMs: number;
+  /** Told about every model that failed before the chain moved on, for the server log. */
+  readonly onModelFailure?: (model: string, reason: string) => void;
+}
+
+/** A short, log-safe reason: a timeout or the HTTP status. Never the error's text. */
+function reasonOf(error: unknown): string {
+  if (error instanceof GeminiUnavailableError) return 'timed out';
+  const status =
+    typeof error === 'object' && error !== null && 'status' in error ? error.status : null;
+  return typeof status === 'number' ? `HTTP ${String(status)}` : 'request failed';
 }
 
 /** Every model in the chain failed, or the deadline passed. The route answers 503. */
@@ -70,9 +80,38 @@ function configFor(request: GenerateRequest, signal: AbortSignal): GenerateConte
   };
 }
 
+/** One request, the SDK call that answers it and the check its answer must pass. */
+interface Job<T> {
+  readonly generate: GenerateFn;
+  readonly request: GenerateRequest;
+  readonly accept: (text: string) => T | null;
+}
+
+/** One model's attempt: its accepted answer, or a short reason it failed. */
+async function tryModel<T>(
+  job: Job<T>,
+  model: string,
+  signal: AbortSignal,
+): Promise<{ readonly value: T } | { readonly reason: string }> {
+  try {
+    const params = { model, contents: job.request.prompt, config: configFor(job.request, signal) };
+    const response = await untilAborted(job.generate(params), signal);
+    // An answer cut off by the token limit may still parse; it is not shown.
+    if (response.candidates?.[0]?.finishReason === 'MAX_TOKENS') {
+      return { reason: 'cut off at the token limit' };
+    }
+    const value = job.accept(response.text ?? '');
+    return value === null ? { reason: 'invalid answer' } : { value };
+  } catch (error) {
+    return { reason: reasonOf(error) };
+  }
+}
+
 /**
  * Runs a request down the model chain. `accept` validates each answer and returns null to reject
- * it, so a malformed answer is treated like a failed call and never reaches the user.
+ * it, so a malformed answer is treated like a failed call and never reaches the user. Busy, slow,
+ * retired or rejected: any failure moves on to the next model, so one bad model never stops the
+ * chain while another could still answer live.
  */
 export function createGemini(generate: GenerateFn, options: GeminiOptions) {
   return {
@@ -84,22 +123,13 @@ export function createGemini(generate: GenerateFn, options: GeminiOptions) {
       for (const model of options.models) {
         if (deadline.aborted) break;
         const signal = AbortSignal.any([deadline, AbortSignal.timeout(options.callTimeoutMs)]);
-        try {
-          const params = { model, contents: request.prompt, config: configFor(request, signal) };
-          const response = await untilAborted(generate(params), signal);
-          // An answer cut off by the token limit may still parse; it is not shown.
-          const truncated = response.candidates?.[0]?.finishReason === 'MAX_TOKENS';
-          const value = truncated ? null : accept(response.text ?? '');
-          if (value !== null) return { value, model };
-        } catch {
-          // Busy, slow, retired (404) or rejected: any failure moves on to the next model, so
-          // one bad model never stops the chain while another could still answer live.
-        }
+        const result = await tryModel({ generate, request, accept }, model, signal);
+        if ('value' in result) return { value: result.value, model };
+        options.onModelFailure?.(model, result.reason);
       }
       throw new GeminiUnavailableError('no model produced a usable answer');
     },
   };
 }
 
-/** The chain-running client the routes use. */
 export type Gemini = ReturnType<typeof createGemini>;

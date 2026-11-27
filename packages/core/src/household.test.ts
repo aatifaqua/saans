@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { householdNotes, householdThreshold, isVulnerable } from './household.ts';
-import { ADULT, FAMILY } from './test-fixtures.ts';
+import { ADULT, FAMILY } from '../test/fixtures.ts';
 import { COMMUTES } from './types.ts';
 
 const joined = (notes: readonly { text: string }[]): string =>

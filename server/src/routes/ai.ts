@@ -11,11 +11,17 @@ import {
 import { Hono } from 'hono';
 import { askPrompt, ASK_SYSTEM, planPrompt, PLAN_SYSTEM } from '../ai/prompts.ts';
 import { GeminiUnavailableError, type Gemini } from '../ai/gemini.ts';
-import { readJson } from '../errors.ts';
+import { readJson } from '../request.ts';
 import type { AirSource } from '../openMeteo.ts';
 import { AskRequestSchema, parsePlan, PLAN_JSON_SCHEMA, PlanRequestSchema } from '../schemas.ts';
 
 const MAX_ANSWER_CHARS = 2000;
+/** Plans stay close to the grounding; answers a little closer still. */
+const PLAN_TEMPERATURE = 0.4;
+const ASK_TEMPERATURE = 0.3;
+/** Room for the full plan or answer plus the model's low thinking budget, so nothing is cut off. */
+const PLAN_MAX_OUTPUT_TOKENS = 4096;
+const ASK_MAX_OUTPUT_TOKENS = 1024;
 
 interface Deps {
   readonly air: AirSource;
@@ -56,9 +62,8 @@ export function aiRoutes(deps: Deps): Hono {
     const request = {
       system: PLAN_SYSTEM,
       prompt: planPrompt(context),
-      temperature: 0.4,
-      // Room for the full plan plus the model's low thinking budget, so answers are not cut off.
-      maxOutputTokens: 4096,
+      temperature: PLAN_TEMPERATURE,
+      maxOutputTokens: PLAN_MAX_OUTPUT_TOKENS,
       json: PLAN_JSON_SCHEMA,
     };
     const { value, model } = await gemini.run(request, (text) => parsePlan(text, allowed));
@@ -74,8 +79,8 @@ export function aiRoutes(deps: Deps): Hono {
     const request = {
       system: ASK_SYSTEM,
       prompt: askPrompt(context, plan, question),
-      temperature: 0.3,
-      maxOutputTokens: 1024,
+      temperature: ASK_TEMPERATURE,
+      maxOutputTokens: ASK_MAX_OUTPUT_TOKENS,
     };
     const { value, model } = await gemini.run(request, (text) => {
       const answer = text.trim();

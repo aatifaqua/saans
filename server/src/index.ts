@@ -20,6 +20,9 @@ const app = createApp({
   generate,
   now: Date.now,
   socketAddress: (c) => getConnInfo(c).remote.address,
+  onModelFailure: (model, reason) => {
+    console.log(JSON.stringify({ event: 'model_failure', model, reason }));
+  },
 });
 
 const server = serve({ fetch: app.fetch, port: config.port }, (info) => {

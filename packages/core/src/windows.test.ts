@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { ADULT, FAMILY, PM25, series } from './test-fixtures.ts';
+import { ADULT, FAMILY, PM25, series } from '../test/fixtures.ts';
 import { localHour, outlook } from './windows.ts';
 
 const { good, satisfactory, moderate, poor, veryPoor, severe } = PM25;

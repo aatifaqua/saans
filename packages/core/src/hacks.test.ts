@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { candidateHacks, HACKS } from './hacks.ts';
-import { ADULT, FAMILY, PM25, series } from './test-fixtures.ts';
+import { ADULT, FAMILY, PM25, series } from '../test/fixtures.ts';
 import { HACK_IDS } from './types.ts';
 import { outlook } from './windows.ts';
 

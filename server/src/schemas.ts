@@ -1,7 +1,14 @@
-import { COMMUTES, HACK_IDS, SENSITIVITIES, type HackId, type Plan } from '@saans/core';
+import {
+  COMMUTES,
+  HACK_IDS,
+  MAX_MEMBER_COUNT,
+  SENSITIVITIES,
+  type HackId,
+  type Plan,
+} from '@saans/core';
 import { z } from 'zod';
 
-const count = z.number().int().min(0).max(12);
+const count = z.number().int().min(0).max(MAX_MEMBER_COUNT);
 
 /** Strict objects: an unknown field is a 400, never silently passed to the model. */
 export const HouseholdSchema = z.strictObject({

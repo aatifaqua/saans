@@ -1,5 +1,7 @@
+import { vi } from 'vitest';
 import { outlook, type HourReading, type Household, type Place, type Plan } from '@saans/core';
 
+/** A family of four with a child who has asthma. */
 export const HOUSEHOLD: Household = {
   members: { child: 1, adult: 2, olderAdult: 0, pregnant: 0 },
   sensitivities: ['asthma'],
@@ -8,8 +10,10 @@ export const HOUSEHOLD: Household = {
   hasPurifier: false,
 };
 
+/** Delhi, as the place search returns it. */
 export const PLACE: Place = { name: 'Delhi', lat: 28.65, lon: 77.23 };
 
+/** A complete plan in the shape Gemini returns. */
 export const PLAN: Plan = {
   summary: 'Very Poor air all day: keep outings short.',
   routine: [
@@ -44,4 +48,13 @@ export function readings(): HourReading[] {
   }));
 }
 
+/** The outlook for the fixture readings and household. */
 export const DAY = outlook(readings(), HOUSEHOLD, '2026-11-22T06:00');
+
+/** Makes every fetch answer with this JSON body and status. */
+export function stubFetch(body: unknown, status = 200): void {
+  vi.stubGlobal(
+    'fetch',
+    vi.fn(() => Promise.resolve(Response.json(body, { status }))),
+  );
+}

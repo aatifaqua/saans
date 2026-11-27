@@ -48,6 +48,9 @@ function runs(slots: readonly (HourAqi | null)[], keep: (hour: HourAqi) => boole
   return found;
 }
 
+/** Which end of the scale a window search looks for. */
+type WindowMode = 'cleanest' | 'dirtiest';
+
 const sumAqi = (hours: readonly HourAqi[]): number =>
   hours.reduce((sum, hour) => sum + hour.aqi, 0);
 
@@ -55,24 +58,28 @@ const sumAqi = (hours: readonly HourAqi[]): number =>
  * The cleanest (or dirtiest) stretch of up to three hours inside one run. Runs are at most 24
  * hours long, so trying each start costs at most 72 additions.
  */
-function pickWindow(run: Run, dirtiest: boolean, leastBad = false): AirWindow {
+function pickWindow(run: Run, mode: WindowMode): AirWindow {
   const size = Math.min(MAX_WINDOW_HOURS, run.length);
   let best = { first: run[0], sum: sumAqi(run.slice(0, size)) };
   for (let index = 1; index + size <= run.length; index += 1) {
     const span = run.slice(index, index + size);
     const sum = sumAqi(span);
-    const better = dirtiest ? sum > best.sum : sum < best.sum;
+    const better = mode === 'dirtiest' ? sum > best.sum : sum < best.sum;
     if (better && span[0] !== undefined) best = { first: span[0], sum };
   }
   const start = best.first.time;
   const meanAqi = Math.round(best.sum / size);
-  return { start, end: addHours(start, size), meanAqi, band: bandOf(meanAqi), leastBad };
+  return { start, end: addHours(start, size), meanAqi, band: bandOf(meanAqi), leastBad: false };
 }
 
+/**
+ * Up to three of the cleanest waking-hour windows within the household's limit, best first. When
+ * none qualifies, the single least bad waking hour, flagged so the plan stays indoor-first.
+ */
 function bestWindows(day: readonly (HourAqi | null)[], threshold: Band): readonly AirWindow[] {
   const limit = bandRank(threshold);
   const clean = runs(day, (hour) => isWaking(hour) && bandRank(hour.band) <= limit)
-    .map((run) => pickWindow(run, false))
+    .map((run) => pickWindow(run, 'cleanest'))
     .sort((a, b) => a.meanAqi - b.meanAqi)
     .slice(0, MAX_WINDOWS);
   if (clean.length > 0) return clean;
@@ -80,13 +87,14 @@ function bestWindows(day: readonly (HourAqi | null)[], threshold: Band): readonl
   for (const hour of day) {
     if (hour !== null && isWaking(hour) && (least === null || hour.aqi < least.aqi)) least = hour;
   }
-  return least === null ? [] : [pickWindow([least], false, true)];
+  return least === null ? [] : [{ ...pickWindow([least], 'cleanest'), leastBad: true }];
 }
 
+/** The dirtiest stretch of up to three hours in the next 24, so windows stay shut then. */
 function worstWindow(day: readonly (HourAqi | null)[]): AirWindow | null {
   let worst: AirWindow | null = null;
   for (const run of runs(day, () => true)) {
-    const candidate = pickWindow(run, true);
+    const candidate = pickWindow(run, 'dirtiest');
     if (worst === null || candidate.meanAqi > worst.meanAqi) worst = candidate;
   }
   return worst;
@@ -109,7 +117,7 @@ export function outlook(
   });
   const day = slots.slice(0, DAY_HOURS);
   const dayHours = day.filter((hour) => hour !== null);
-  const mean = dayHours.reduce((sum, hour) => sum + hour.aqi, 0) / Math.max(1, dayHours.length);
+  const mean = sumAqi(dayHours) / Math.max(1, dayHours.length);
   const threshold = householdThreshold(household);
   const peak = dayHours.reduce<HourAqi | null>(
     (top, hour) => (top === null || hour.aqi > top.aqi ? hour : top),

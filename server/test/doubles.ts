@@ -5,8 +5,10 @@ import type { AppDeps } from '../src/app.ts';
 import type { Config } from '../src/config.ts';
 import type { FetchFn } from '../src/openMeteo.ts';
 
-export const NOW = Date.parse('2026-11-22T00:30:00Z'); // 06:00 in India
+/** The fixed clock for every test: 00:30 UTC, which is 06:00 in India. */
+export const NOW = Date.parse('2026-11-22T00:30:00Z');
 
+/** The configuration every test starts from: a key, two models, no static files. */
 export const CONFIG: Config = {
   geminiApiKey: 'test-key',
   models: ['model-a', 'model-b'],
@@ -16,6 +18,7 @@ export const CONFIG: Config = {
   rateLimit: { perMinute: 60, aiPerMinute: 10 },
 };
 
+/** A family of four with a child who has asthma, commuting by car. */
 export const HOUSEHOLD: Household = {
   members: { child: 1, adult: 2, olderAdult: 0, pregnant: 0 },
   sensitivities: ['asthma'],
@@ -24,8 +27,10 @@ export const HOUSEHOLD: Household = {
   hasPurifier: false,
 };
 
+/** Delhi, as the web app sends it. */
 export const PLACE = { name: 'Delhi', lat: 28.61, lon: 77.21 };
 
+/** A complete plan in the shape Gemini must return. */
 export const PLAN: Plan = {
   summary: 'Severe smog all day: stay in and keep the air inside clean.',
   routine: [
@@ -75,6 +80,7 @@ export function airPayload(): unknown {
   };
 }
 
+/** One Open-Meteo geocoding match for Delhi. */
 export const GEOCODE = {
   results: [{ name: 'Delhi', admin1: 'Delhi', latitude: 28.65195, longitude: 77.23149 }],
 };
@@ -112,6 +118,7 @@ export function apiError(status: number): Error {
   return Object.assign(new Error(`status ${String(status)}`), { status });
 }
 
+/** App dependencies with every outside service faked; override any of them per test. */
 export function deps(overrides: Partial<AppDeps> = {}): AppDeps {
   return {
     config: CONFIG,

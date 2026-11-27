@@ -1,3 +1,4 @@
+/** A key-value cache whose values are promises, so callers share one load. */
 export interface Cache<T> {
   /** The cached value for `key`, or the result of `load`, shared with any caller already waiting. */
   get(key: string, load: () => Promise<T>): Promise<T>;

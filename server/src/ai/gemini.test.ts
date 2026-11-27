@@ -31,6 +31,21 @@ describe('createGemini', () => {
     expect(await gemini.run(REQUEST, accept)).toEqual({ value: 'ok', model: 'd' });
   });
 
+  it('reports each failed model with a short reason before moving on', async () => {
+    const failures: [string, string][] = [];
+    const generate = fakeGenerate([apiError(503), 'nope', 'ok']);
+    const gemini = createGemini(generate, {
+      models: ['a', 'b', 'c'],
+      ...TIMINGS,
+      onModelFailure: (model, reason) => failures.push([model, reason]),
+    });
+    expect(await gemini.run(REQUEST, accept)).toMatchObject({ model: 'c' });
+    expect(failures).toEqual([
+      ['a', 'HTTP 503'],
+      ['b', 'invalid answer'],
+    ]);
+  });
+
   it('fails only after every model has failed', async () => {
     const generate = fakeGenerate([apiError(503), apiError(404)]);
     const gemini = createGemini(generate, { models: ['a', 'b'], ...TIMINGS });

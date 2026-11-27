@@ -5,7 +5,9 @@ import { compress } from 'hono/compress';
 import { createGemini, type GeminiOptions, type GenerateFn } from './ai/gemini.ts';
 import type { Config } from './config.ts';
 import { onError } from './errors.ts';
-import { clientKey, rateLimit, sameSiteJson, securityHeaders } from './middleware.ts';
+import { clientKey, rateLimit } from './middleware/rateLimit.ts';
+import { sameSiteJson } from './middleware/sameSite.ts';
+import { securityHeaders } from './middleware/security.ts';
 import { createAirSource, type FetchFn } from './openMeteo.ts';
 import { aiRoutes } from './routes/ai.ts';
 import { airRoutes } from './routes/air.ts';
@@ -19,6 +21,8 @@ export interface AppDeps {
   readonly generate: GenerateFn | null;
   readonly now: () => number;
   readonly socketAddress: (c: Context) => string | undefined;
+  /** Where the model chain reports each failed model; the entry point writes it to the log. */
+  readonly onModelFailure?: (model: string, reason: string) => void;
 }
 
 const MAX_BODY_BYTES = 16 * 1024;
@@ -30,12 +34,15 @@ const TIMINGS: Omit<GeminiOptions, 'models'> = { callTimeoutMs: 15_000, deadline
 
 /** Builds the app: security and rate-limit middleware, the API routes and, when configured, the web app. */
 export function createApp(deps: AppDeps): Hono {
-  const { config } = deps;
-  const { now } = deps;
+  const { config, now } = deps;
   const gemini =
     deps.generate === null
       ? null
-      : createGemini(deps.generate, { ...TIMINGS, models: config.models });
+      : createGemini(deps.generate, {
+          ...TIMINGS,
+          models: config.models,
+          ...(deps.onModelFailure === undefined ? {} : { onModelFailure: deps.onModelFailure }),
+        });
   const keyOf = clientKey(config.trustProxy, deps.socketAddress);
 
   const app = new Hono();

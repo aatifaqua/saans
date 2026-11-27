@@ -1,5 +1,6 @@
 <script lang="ts">
   import { DISCLAIMER, HACKS, type Household, type Place, type Plan } from '@saans/core';
+  import { tick } from 'svelte';
   import { ApiError, getPlan } from '../lib/api.ts';
   import AskBox from './AskBox.svelte';
 
@@ -13,6 +14,7 @@
   let result = $state<{ plan: Plan; model: string } | null>(null);
   let error = $state('');
   let busy = $state(false);
+  let summary = $state<HTMLParagraphElement>();
 
   /** Every plan is written by Gemini on request; on failure nothing stands in for it. */
   async function make(): Promise<void> {
@@ -20,6 +22,10 @@
     error = '';
     try {
       result = await getPlan(household, place);
+      busy = false;
+      // Move focus to the new plan, so keyboard and screen reader users start reading there.
+      await tick();
+      summary?.focus();
     } catch (failure) {
       result = null;
       error = failure instanceof ApiError ? failure.message : 'Something went wrong.';
@@ -29,7 +35,11 @@
   }
 </script>
 
-<section class="card plan" aria-labelledby="plan-heading">
+<!-- Outside the busy section, so screen readers announce it straight away. -->
+<p class="visually-hidden" role="status">
+  {busy ? 'Writing your plan.' : result ? "Today's plan is ready." : ''}
+</p>
+<section class="card plan" aria-labelledby="plan-heading" aria-busy={busy}>
   <h2 id="plan-heading">Today's plan</h2>
   <p class="muted">Gemini writes a routine for your household from the live forecast above.</p>
   <button type="button" class="primary" onclick={make} disabled={busy}>
@@ -43,12 +53,9 @@
     </div>
   {/if}
 
-  <p class="visually-hidden" role="status">
-    {busy ? 'Writing your plan.' : result ? "Today's plan is ready." : ''}
-  </p>
-  <div aria-live="polite">
+  <div>
     {#if result}
-      <p class="summary">{result.plan.summary}</p>
+      <p class="summary" tabindex="-1" bind:this={summary}>{result.plan.summary}</p>
 
       <h3>Low-emission routine</h3>
       <ol class="routine">

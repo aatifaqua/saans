@@ -184,9 +184,9 @@ describe('GET /api/places', () => {
 describe('GET /api/air', () => {
   it('returns hourly readings with the offset and the disclaimer', async () => {
     const res = await createApp(deps()).request('/api/air?lat=28.6139&lon=77.209');
-    const body = (await res.json()) as { utcOffsetSeconds: number; readings: unknown[] };
+    const body: unknown = await res.json();
     expect(body).toMatchObject({ utcOffsetSeconds: 19_800, disclaimer: DISCLAIMER });
-    expect(body.readings).toHaveLength(72);
+    expect(body).toHaveProperty('readings.length', 72);
     expect(res.headers.get('cache-control')).toContain('max-age=300');
   });
 
@@ -270,9 +270,17 @@ describe('POST /api/plan', () => {
       post({ household: HOUSEHOLD, place: PLACE }),
     );
     expect(res.status).toBe(503);
-    const body = (await res.json()) as Record<string, unknown>;
+    const body: unknown = await res.json();
     expect(body).not.toHaveProperty('plan');
     expect(body).toMatchObject({ disclaimer: DISCLAIMER });
+  });
+
+  it('passes failed models to the log hook', async () => {
+    const failures: string[] = [];
+    const generate = fakeGenerate([apiError(503), JSON.stringify(PLAN)]);
+    const app = createApp(deps({ generate, onModelFailure: (model) => failures.push(model) }));
+    await app.request('/api/plan', post({ household: HOUSEHOLD, place: PLACE }));
+    expect(failures).toEqual(['model-a']);
   });
 
   it('answers 503 when no key is configured', async () => {

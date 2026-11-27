@@ -1,6 +1,6 @@
 import { Hono } from 'hono';
 import { describe, expect, it } from 'vitest';
-import { clientKey, rateLimit } from './middleware.ts';
+import { clientKey, rateLimit } from './rateLimit.ts';
 
 async function keyFor(trustProxy: boolean, headers: Record<string, string>): Promise<string> {
   const app = new Hono();

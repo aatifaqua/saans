@@ -1,6 +1,6 @@
 <script lang="ts">
-  import { round2, type Place } from '@saans/core';
-  import { ApiError, searchPlaces, type ListedPlace } from '../lib/api.ts';
+  import { round2, type ListedPlace, type Place } from '@saans/core';
+  import { ApiError, searchPlaces } from '../lib/api.ts';
 
   interface Props {
     place: Place | null;
