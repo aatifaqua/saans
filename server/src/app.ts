@@ -5,7 +5,7 @@ import { compress } from 'hono/compress';
 import { createGemini, type GeminiOptions, type GenerateFn } from './ai/gemini.ts';
 import type { Config } from './config.ts';
 import { onError } from './errors.ts';
-import { clientKey, rateLimit, securityHeaders } from './middleware.ts';
+import { clientKey, rateLimit, sameSiteJson, securityHeaders } from './middleware.ts';
 import { createAirSource, type FetchFn } from './openMeteo.ts';
 import { aiRoutes } from './routes/ai.ts';
 import { airRoutes } from './routes/air.ts';
@@ -44,6 +44,7 @@ export function createApp(deps: AppDeps): Hono {
   const aiLimit = rateLimit({ perMinute: config.rateLimit.aiPerMinute, now, keyOf });
   app.use('/api/plan', aiLimit);
   app.use('/api/ask', aiLimit);
+  app.use('/api/*', sameSiteJson());
   app.use(
     '/api/*',
     bodyLimit({

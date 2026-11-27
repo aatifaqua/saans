@@ -3,8 +3,9 @@ import type { Context, MiddlewareHandler } from 'hono';
 import { secureHeaders } from 'hono/secure-headers';
 
 /**
- * One strict policy for the page and the API: everything from this origin only, no inline script
- * or style (the built app ships one CSS file), no framing, and geolocation for this origin only.
+ * One strict policy for the page and the API, every header stated rather than left to library
+ * defaults: everything from this origin only, no inline script or style (the built app ships one
+ * CSS file), no workers, frames or plugins, HTTPS only, and geolocation for this origin only.
  */
 export const securityHeaders = (): MiddlewareHandler =>
   secureHeaders({
@@ -13,15 +14,56 @@ export const securityHeaders = (): MiddlewareHandler =>
       scriptSrc: ["'self'"],
       styleSrc: ["'self'"],
       imgSrc: ["'self'", 'data:'],
+      fontSrc: ["'self'"],
       connectSrc: ["'self'"],
+      manifestSrc: ["'self'"],
       objectSrc: ["'none'"],
+      frameSrc: ["'none'"],
+      workerSrc: ["'none'"],
       baseUri: ["'self'"],
       formAction: ["'self'"],
       frameAncestors: ["'none'"],
+      upgradeInsecureRequests: [],
     },
-    permissionsPolicy: { geolocation: ['self'], camera: [], microphone: [] },
+    strictTransportSecurity: 'max-age=31536000; includeSubDomains',
+    xFrameOptions: 'DENY',
+    xContentTypeOptions: 'nosniff',
+    crossOriginOpenerPolicy: 'same-origin',
+    crossOriginResourcePolicy: 'same-origin',
     referrerPolicy: 'strict-origin-when-cross-origin',
+    permissionsPolicy: {
+      geolocation: ['self'],
+      camera: [],
+      microphone: [],
+      payment: [],
+      usb: [],
+      serial: [],
+      hid: [],
+      bluetooth: [],
+      accelerometer: [],
+      gyroscope: [],
+      magnetometer: [],
+      displayCapture: [],
+      browsingTopics: [],
+    },
   });
+
+/**
+ * API posts must be JSON sent by this site. A browser marks every request with Sec-Fetch-Site,
+ * so a page on another site cannot spend this app's Gemini quota through a visitor's browser;
+ * clients that send no such header (curl, tests) still need a JSON body.
+ */
+export const sameSiteJson = (): MiddlewareHandler => async (c, next) => {
+  if (c.req.method !== 'POST') return next();
+  const site = c.req.header('sec-fetch-site');
+  if (site !== undefined && site !== 'same-origin' && site !== 'none') {
+    return c.json({ error: 'Requests must come from this site.', disclaimer: DISCLAIMER }, 403);
+  }
+  if (!(c.req.header('content-type') ?? '').startsWith('application/json')) {
+    return c.json({ error: 'Send the request as JSON.', disclaimer: DISCLAIMER }, 415);
+  }
+  return next();
+};
 
 /**
  * The client address used for rate limiting. Behind Cloud Run the front end appends the real

@@ -38,8 +38,52 @@ describe('health and headers', () => {
     expect(csp).toContain("default-src 'self'");
     expect(csp).toContain("frame-ancestors 'none'");
     expect(csp).not.toContain('unsafe-inline');
+    expect(csp).toContain("worker-src 'none'");
+    expect(csp).toContain("frame-src 'none'");
+    expect(csp).toContain('upgrade-insecure-requests');
     expect(res.headers.get('x-content-type-options')).toBe('nosniff');
-    expect(res.headers.get('permissions-policy')).toContain('geolocation=(self)');
+    expect(res.headers.get('x-frame-options')).toBe('DENY');
+    expect(res.headers.get('strict-transport-security')).toBe(
+      'max-age=31536000; includeSubDomains',
+    );
+    expect(res.headers.get('cross-origin-opener-policy')).toBe('same-origin');
+    expect(res.headers.get('cross-origin-resource-policy')).toBe('same-origin');
+    const permissions = res.headers.get('permissions-policy') ?? '';
+    expect(permissions).toContain('geolocation=(self)');
+    expect(permissions).toContain('payment=()');
+    expect(permissions).toContain('usb=()');
+  });
+
+  it('accepts only same-site JSON posts to the API', async () => {
+    const app = createApp(deps());
+    const body = JSON.stringify({ household: HOUSEHOLD, place: PLACE });
+    const text = await app.request('/api/plan', {
+      method: 'POST',
+      headers: { 'content-type': 'text/plain' },
+      body,
+    });
+    expect(text.status).toBe(415);
+    const crossSite = await app.request('/api/plan', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json', 'sec-fetch-site': 'cross-site' },
+      body,
+    });
+    expect(crossSite.status).toBe(403);
+    expect(await crossSite.json()).toMatchObject({ disclaimer: DISCLAIMER });
+    const sameSite = await app.request('/api/plan', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json', 'sec-fetch-site': 'same-origin' },
+      body,
+    });
+    expect(sameSite.status).toBe(200);
+  });
+
+  it('never lets a browser or proxy cache an AI answer', async () => {
+    const res = await createApp(deps()).request(
+      '/api/plan',
+      post({ household: HOUSEHOLD, place: PLACE }),
+    );
+    expect(res.headers.get('cache-control')).toBe('no-store');
   });
 
   it('answers unknown API paths with a JSON 404', async () => {

@@ -39,3 +39,11 @@ jobs:
 
       - name: Audit production dependencies
         run: npm audit --omit=dev --audit-level=high
+
+      # No API key or private key may ever be committed; the Gemini key lives in Secret Manager.
+      - name: Scan for committed secrets
+        run: |
+          if git grep -nIE 'AIza[0-9A-Za-z_-]{35}|-----BEGIN [A-Z ]*PRIVATE KEY-----' -- . ':!package-lock.json'; then
+            echo 'Possible secret committed' >&2
+            exit 1
+          fi

@@ -61,6 +61,8 @@ export function aiRoutes(deps: Deps): Hono {
       json: PLAN_JSON_SCHEMA,
     };
     const { value, model } = await gemini.run(request, (text) => parsePlan(text, allowed));
+    // Each answer is for one household at one moment; nothing in between may keep it.
+    c.header('Cache-Control', 'no-store');
     return c.json({ plan: value, model, disclaimer: DISCLAIMER });
   });
 
@@ -78,6 +80,7 @@ export function aiRoutes(deps: Deps): Hono {
       const answer = text.trim();
       return answer === '' ? null : answer.slice(0, MAX_ANSWER_CHARS);
     });
+    c.header('Cache-Control', 'no-store');
     return c.json({ answer: value, model, disclaimer: DISCLAIMER });
   });
 
